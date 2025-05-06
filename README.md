@@ -52,9 +52,9 @@ On their turn, each player chooses one of the following actions:
 - High Card  
 - One Pair *(2 cards of the same rank)*  
 - Two Pair  
+- Flush *(5 cards of the same suit)*  
 - Three of a Kind *(3 cards of the same rank)*  
 - Straight *(5 sequential cards)*  
-- Flush *(5 cards of the same suit)*  
 - Full House *(Three of a Kind + One Pair)*  
 - Four of a Kind *(4 cards of the same rank)*  
 - Straight Flush *(Straight in the same suit)*  
