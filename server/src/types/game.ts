@@ -80,4 +80,5 @@ export interface GameState {
     } | null;
     status: 'waiting' | 'active' | 'finished';
     winner: string | null;
+    deckCount: number;
 }
