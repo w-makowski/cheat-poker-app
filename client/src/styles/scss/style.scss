@@ -1,0 +1,15 @@
+@import 'abstracts/variables';
+@import 'abstracts/mixins';
+@import 'abstracts/typography';
+
+@import 'base/global';
+@import 'base/reset';
+
+@import 'components/buttons';
+@import 'components/footer';
+@import 'components/navbar';
+@import 'components/game-board';
+@import 'components/game-controlls';
+@import 'components/player-list';
+
+@import 'pages/home-page';

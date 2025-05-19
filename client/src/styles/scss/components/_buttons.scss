@@ -1,0 +1,65 @@
+.btn {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: $spacing-sm $spacing-lg;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    @include transition(background-color, box-shadow);
+    
+    &:focus {
+      outline: 0;
+      box-shadow: 0 0 0 0.2rem rgba($secondary-color, 0.25);
+    }
+    
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+  
+  .btn-primary {
+    @include button-variant($secondary-color, $light-text, darken($secondary-color, 10%));
+  }
+  
+  .btn-secondary {
+    @include button-variant($primary-color, $light-text, darken($primary-color, 10%));
+  }
+  
+  .btn-accent {
+    @include button-variant($accent-color, $light-text, darken($accent-color, 10%));
+  }
+  
+  .btn-success {
+    @include button-variant($success-color, $light-text, darken($success-color, 10%));
+  }
+  
+  .btn-danger {
+    @include button-variant($error-color, $light-text, darken($error-color, 10%));
+  }
+  
+  .btn-warning {
+    @include button-variant($warning-color, $light-text, darken($warning-color, 10%));
+  }
+  
+  .btn-lg {
+    padding: $spacing-md $spacing-xl;
+    font-size: 1.25rem;
+  }
+  
+  .btn-sm {
+    padding: $spacing-xs $spacing-md;
+    font-size: 0.875rem;
+  }
+  
+  .btn-block {
+    display: block;
+    width: 100%;
+  }
+  

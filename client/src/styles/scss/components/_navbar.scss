@@ -1,0 +1,54 @@
+.navbar {
+    @include flex(row, space-between, center);
+    background-color: $primary-color;
+    padding: $spacing-md $spacing-lg;
+    box-shadow: $box-shadow-sm;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: bold;
+      
+      a {
+        color: $light-text;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+    
+    .navbar-links {
+      @include flex(row, center, center);
+      gap: $spacing-lg;
+      
+      a {
+        color: rgba($light-text, 0.8);
+        text-decoration: none;
+        @include transition(color);
+        
+        &:hover, &.active {
+          color: $light-text;
+        }
+      }
+    }
+    
+    .navbar-auth {
+      .btn {
+        margin-left: $spacing-sm;
+      }
+    }
+    
+    @include respond-to(sm) {
+      padding: $spacing-md $spacing-xl;
+    }
+    
+    @media (max-width: #{$breakpoint-md - 1px}) {
+      .navbar-links {
+        display: none;
+      }
+    }
+  }

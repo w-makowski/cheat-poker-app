@@ -1,0 +1,91 @@
+.game-board {
+    @include card;
+    margin-bottom: $spacing-lg;
+    
+    .game-info {
+      margin-bottom: $spacing-lg;
+      border-bottom: 1px solid $border-color;
+      padding-bottom: $spacing-md;
+    }
+    
+    .last-declaration {
+      background-color: rgba($primary-color, 0.1);
+      padding: $spacing-md;
+      border-radius: $border-radius-sm;
+      margin-bottom: $spacing-md;
+      
+      h3 {
+        font-size: 1rem;
+        margin-bottom: $spacing-xs;
+      }
+      
+      p {
+        margin-bottom: 0;
+      }
+    }
+    
+    .player-hand {
+      margin-bottom: $spacing-lg;
+      
+      h3 {
+        margin-bottom: $spacing-md;
+      }
+      
+      .cards-container {
+        @include flex(row, flex-start, center);
+        flex-wrap: wrap;
+        gap: $spacing-sm;
+        
+        .card {
+          width: 80px;
+          height: 120px;
+          border-radius: $border-radius-sm;
+          background-color: white;
+          border: 1px solid $border-color;
+          @include flex(column, space-between, center);
+          padding: $spacing-sm;
+          position: relative;
+          box-shadow: $box-shadow-sm;
+          @include transition(transform);
+          
+          &:hover {
+            transform: translateY(-5px);
+          }
+          
+          .card-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+          }
+          
+          .card-suit {
+            font-size: 2rem;
+          }
+          
+          &.hearts, &.diamonds {
+            color: $hearts-color;
+          }
+          
+          &.clubs, &.spades {
+            color: $clubs-color;
+          }
+        }
+      }
+    }
+    
+    .turn-indicator {
+      background-color: rgba($primary-color, 0.05);
+      padding: $spacing-md;
+      border-radius: $border-radius-sm;
+      text-align: center;
+      
+      .your-turn {
+        font-weight: bold;
+        color: $success-color;
+      }
+      
+      .waiting-turn {
+        color: $text-color;
+      }
+    }
+  }
+  

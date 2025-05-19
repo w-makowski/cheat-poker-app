@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    color: $text-color;
+    background-color: $background-color;
+  }
+  
+  a {
+    text-decoration: none;
+    color: $secondary-color;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  ul, ol {
+    list-style-position: inside;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }

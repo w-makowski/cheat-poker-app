@@ -1,0 +1,32 @@
+.footer {
+    background-color: $primary-color;
+    color: $light-text;
+    padding: $spacing-lg;
+    margin-top: auto;
+    
+    .footer-content {
+      @include flex(row, space-between, center);
+      flex-wrap: wrap;
+      
+      @media (max-width: #{$breakpoint-md - 1px}) {
+        flex-direction: column;
+        gap: $spacing-md;
+        text-align: center;
+      }
+      
+      p {
+        margin: 0;
+      }
+      
+      a {
+        color: rgba($light-text, 0.8);
+        text-decoration: none;
+        @include transition(color);
+        
+        &:hover {
+          color: $light-text;
+          text-decoration: underline;
+        }
+      }
+    }
+  }

@@ -1,0 +1,72 @@
+h1, h2, h3, h4, h5, h6 {
+    font-family: $font-family-heading;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: $spacing-md;
+    color: $primary-color;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  h4 {
+    font-size: 1.25rem;
+  }
+  
+  h5 {
+    font-size: 1rem;
+  }
+  
+  h6 {
+    font-size: 0.875rem;
+  }
+  
+  p {
+    margin-bottom: $spacing-md;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+  
+  .text-muted {
+    color: #6c757d;
+  }
+  
+  .text-primary {
+    color: $primary-color;
+  }
+  
+  .text-secondary {
+    color: $secondary-color;
+  }
+  
+  .text-accent {
+    color: $accent-color;
+  }
+  
+  .text-success {
+    color: $success-color;
+  }
+  
+  .text-error {
+    color: $error-color;
+  }
+  
+  .text-warning {
+    color: $warning-color;
+  }
+  

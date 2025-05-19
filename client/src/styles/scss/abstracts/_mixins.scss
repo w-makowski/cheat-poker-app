@@ -1,0 +1,102 @@
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify;
+    align-items: $align;
+    flex-wrap: $wrap;
+}
+  
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+// Media query mixins
+@mixin respond-to($breakpoint) {
+    @if $breakpoint == sm {
+      @media (min-width: $breakpoint-sm) { @content; }
+    } @else if $breakpoint == md {
+      @media (min-width: $breakpoint-md) { @content; }
+    } @else if $breakpoint == lg {
+      @media (min-width: $breakpoint-lg) { @content; }
+    } @else if $breakpoint == xl {
+      @media (min-width: $breakpoint-xl) { @content; }
+    }
+}
+  
+// Typography mixins
+@mixin heading($size: 'md') {
+    font-family: $font-family-heading;
+    font-weight: bold;
+    line-height: 1.2;
+    
+    @if $size == 'xl' {
+      font-size: 2.5rem;
+    } @else if $size == 'lg' {
+      font-size: 2rem;
+    } @else if $size == 'md' {
+      font-size: 1.5rem;
+    } @else if $size == 'sm' {
+      font-size: 1.25rem;
+    } @else if $size == 'xs' {
+      font-size: 1rem;
+    }
+}
+  
+// Button mixins
+@mixin button-variant($background, $color, $hover-background) {
+    background-color: $background;
+    color: $color;
+    
+    &:hover, &:focus {
+      background-color: $hover-background;
+    }
+    
+    &:disabled {
+      background-color: lighten($background, 20%);
+      cursor: not-allowed;
+    }
+}
+  
+// Card mixins
+@mixin card {
+    background-color: white;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-lg;
+}
+  
+// Container mixins
+@mixin container {
+    width: 100%;
+    padding-right: $spacing-md;
+    padding-left: $spacing-md;
+    margin-right: auto;
+    margin-left: auto;
+    
+    @include respond-to(sm) {
+      max-width: 540px;
+    }
+    
+    @include respond-to(md) {
+      max-width: 720px;
+    }
+    
+    @include respond-to(lg) {
+      max-width: 960px;
+    }
+    
+    @include respond-to(xl) {
+      max-width: 1140px;
+    }
+}
+  
+// Transition mixins
+@mixin transition($properties...) {
+    $transitions: ();
+    @each $property in $properties {
+      $transitions: append($transitions, $property $transition-normal, comma);
+    }
+    transition: $transitions;
+}
