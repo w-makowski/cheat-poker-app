@@ -17,22 +17,26 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [connected, setConnected] = useState(false);
-    const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+    const { isAuthenticated, getAccessTokenSilently, user } = useAuth0();
 
     useEffect(() => {
+        let newSocket: Socket | null = null;
+
         if (isAuthenticated) {
             const setupSocket = async () => {
                 try {
                     const token = await getAccessTokenSilently();
 
-                    const newSocket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001', {
-                        auth: {
-                            token
-                        }
+                    newSocket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001', {
+                        auth: { token }
                     });
 
+                    // On connect, register user by user.sub (Auth0 user id)
                     newSocket.on('connect', () => {
                         setConnected(true);
+                        if (user?.sub) {
+                            newSocket!.emit('registerUser', user.sub);
+                        }
                         console.log('Socket connected');
                     });
 
@@ -41,10 +45,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                         console.log('Socket disconnected');
                     });
 
+                    // Listen for private event (e.g., yourCard)
+                    newSocket.on('yourCard', (data) => {
+                        // You can handle the card in context, dispatch to state, or show a UI
+                        alert(`You drew a card: ${data.card}`);
+                    });
+
                     setSocket(newSocket);
 
                     return () => {
-                        newSocket.disconnect();
+                        newSocket?.disconnect();
                         setConnected(false);
                         console.log('Socket disconnected');
                     }
@@ -57,13 +67,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
 
         return () => {
-            if (socket) {
-                socket.disconnect();
+            if (newSocket) {
+                newSocket.disconnect();
                 setConnected(false);
                 console.log('Socket disconnected');
             }
         }
-    }, [isAuthenticated, getAccessTokenSilently]);
+    }, [isAuthenticated, getAccessTokenSilently, user]);
 
     return (
         <SocketContext.Provider value={{ socket, connected }}>

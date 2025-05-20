@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { sendCardToUser } from '../sockets'; // Adjust path as needed
 import { GameState, Player, PokerHand, CardRank, DealConfig, CompleteHand } from '../types/game';
 import { createDeck, shuffleDeck, dealCards } from '../utils/deck';
 import { getNextActivePlayerIndex } from '../utils/gameHelpers';
@@ -7,7 +8,7 @@ import { validateDeclaredHand } from '../utils/validateDeclaredHand';
 
 const activeGames = new Map<string, GameState>();
 
-export function initializeGame(gameId: string, players: Player[], decks: number): GameState {
+export function initializeGame(io: Server, gameId: string, players: Player[], decks: number): GameState {
     const deck = shuffleDeck(createDeck(decks));
     const dealConfig: DealConfig = {};
     for (let i = 0; i < players.length; i++) {
@@ -17,7 +18,11 @@ export function initializeGame(gameId: string, players: Player[], decks: number)
 
     players.forEach((player, index) => {
         player.cards = playerHands[index];
-    })
+        // Send cards privately to the player
+        if (player.id) {
+            sendCardToUser(io, player.id, playerHands[index]);
+        }
+    });
 
     const gameState: GameState = {
         id: gameId,
@@ -56,8 +61,6 @@ export function declareHand(gameId: string, playerId: string, declaredHand: Comp
     }
 
     if (game.lastDeclaredHand) {
-
-        // if (handStrength(hand) <= handStrength(game.lastDeclaredHand.hand))
         const comparison = compareHands(declaredHand, game.lastDeclaredHand.declaredHand);
         if (comparison <= 0) {
             return false;
@@ -65,7 +68,6 @@ export function declareHand(gameId: string, playerId: string, declaredHand: Comp
     }
 
     game.lastDeclaredHand = { playerId, declaredHand };
-    // game.currentPlayerIndex = (game.startingPlayerIndex + game.currentPlayerIndex + 1) % game.players.length;
     game.currentPlayerIndex = getNextActivePlayerIndex(game, game.currentPlayerIndex);
 
     return true;
@@ -86,7 +88,7 @@ export function checkPreviousPlayer(gameId: string, playerId: string): { isBluff
     const isBluffing = !validateDeclaredHand(
         allCards,
         game.lastDeclaredHand.declaredHand
-    )
+    );
 
     const nextRoundPenaltyPlayer = isBluffing ? previousPlayerId : playerId;
 
@@ -97,7 +99,7 @@ export function checkPreviousPlayer(gameId: string, playerId: string): { isBluff
 
 function endRound(gameId: string, penaltyPlayerId: string): string | null {
     const game = activeGames.get(gameId);
-  
+
     if (!game) {
         return null;
     }
@@ -129,10 +131,10 @@ function endRound(gameId: string, penaltyPlayerId: string): string | null {
         game.startingPlayerIndex = (game.startingPlayerIndex + 1) % game.players.length;
     } while (!game.players[game.startingPlayerIndex].isActive);
 
-    return null
+    return null;
 }
 
-export function startNewRound(gameId: string): boolean {
+export function startNewRound(gameId: string, io: Server): boolean {
     const game = activeGames.get(gameId);
     if (!game || game.status !== 'active') {
         return false;
@@ -145,15 +147,16 @@ export function startNewRound(gameId: string): boolean {
 
     activePlayers.forEach((player, index) => {
         dealConfig[index] = player.cardsCount;
-    })
+    });
 
     const playerHands = dealCards(deck, dealConfig);
-
     let acitveIndex = 0;
-    for(let i = 0; i < game.players.length; i++) {
+    for (let i = 0; i < game.players.length; i++) {
         const player = game.players[i];
         if (player.isActive) {
             player.cards = playerHands[acitveIndex];
+            // Private send here
+            sendCardToUser(io, player.id, playerHands[acitveIndex]);
             acitveIndex++;
         } else {
             player.cards = [];
