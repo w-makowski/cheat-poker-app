@@ -25,7 +25,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 try {
                     const token = await getAccessTokenSilently();
 
-                    const newSocket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001', {
+                    const newSocket = io(import.meta.env.VITE_APP_SOCKET_URL || 'http://localhost:5001', {
                         auth: {
                             token
                         }

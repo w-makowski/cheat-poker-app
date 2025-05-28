@@ -8,10 +8,13 @@ import RulesPage from './pages/RulesPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { SocketProvider } from './contexts/SocketContext';
+import { useUserSync } from './hooks/useUserSync';
 // import './App.css'
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth0();
+
+  useUserSync();
 
   if (isLoading) {
     return <div className="loading">Loading...</div>;

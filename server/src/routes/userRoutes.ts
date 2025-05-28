@@ -7,8 +7,17 @@ const router = express.Router();
 
 
 const getMeHandler = async (req: Request, res: Response, next: NextFunction) => {
-    const { sub: auth0Id, email, nickname } = (req as any).auth;
-  
+    const auth = (req as any).auth;
+
+    console.log('auth:', auth);
+
+    const auth0Id = auth?.sub;
+    const email = auth?.['https://cheat-poker-game-user/email'];
+    const username = auth?.[process.env.AUTH0_ACCESS_TOKEN_DOMAIN+'username'];
+
+    console.log('Email:', email);
+    console.log('Username:', username);
+
     if (!auth0Id || !email) {
       return res.status(400).json({ message: 'Invalid token payload' });
     }
@@ -20,7 +29,7 @@ const getMeHandler = async (req: Request, res: Response, next: NextFunction) => 
         user = await User.create({
           auth0Id,
           email,
-          username: nickname || email.split('@')[0]
+          username: username || email.split('@')[0]
         });
       }
   

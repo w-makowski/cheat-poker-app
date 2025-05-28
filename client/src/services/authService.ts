@@ -6,6 +6,7 @@ export const getToken = async (): Promise<string | undefined> => {
         const isAuthenticated = await auth0Client.isAuthenticated();
 
         if (!isAuthenticated) {
+            console.warn('User not authenticated');
             return undefined;
         }
 

@@ -7,13 +7,25 @@ import { createDeck, shuffleDeck } from '../utils/deck';
 
 export async function createGame(req: Request, res: Response) {
     try {
-        const { name, userId, maxPlayers, numberOfDecks } = req.body;
+        // const { name, userId, maxPlayers, numberOfDecks } = req.body;
 
-        if (!name || !userId) {
-            return res.status(400).json({ error: 'Name and userId are required' });
+        // if (!name || !userId) {
+        //     return res.status(400).json({ error: 'Name and userId are required' });
+        // }
+
+        // const user = await User.findByPk(userId);
+        // if (!user) {
+        //     return res.status(404).json({ error: 'User not found' });
+        // }
+
+        const auth0Id = (req as any).auth?.sub;
+        const { name, maxPlayers, numberOfDecks } = req.body;
+
+        if (!auth0Id || !name) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        const user = await User.findByPk(userId);
+        const user = await User.findOne({ where: { auth0Id } });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -27,7 +39,8 @@ export async function createGame(req: Request, res: Response) {
         });
 
         await Player.create({
-            userId,
+            // userId,
+            userId: user.id,
             gameId: game.id,
             position: 0,
             cardsCount: 1,
@@ -66,7 +79,15 @@ export async function getWaitingGames(req: Request, res: Response) {
 
 export async function joinGame(req: Request, res: Response) {
     try {
-        const { gameId, userId } = req.body;
+        const { gameId } = req.body;
+
+        const auth0Id = (req as any).auth?.sub;
+
+        const user = await User.findOne({ where: { auth0Id } });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const userId = user.id;
 
         if (!gameId || !userId) {
             return res.status(400).json({ error: 'GameId and userId are required' });

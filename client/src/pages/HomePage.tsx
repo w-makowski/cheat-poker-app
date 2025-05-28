@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import { fetchGameRooms, createGameRoom } from '../services/gameService';
+import { fetchGameRooms, createGameRoom, joinGameRoom } from '../services/gameService';
 
 interface GameRoom {
     id: string;
@@ -15,7 +15,7 @@ const HomePage: React.FC = () => {
     const [gameRooms, setGameRooms] = useState<GameRoom[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { isAuthenticated, loginWithRedirect } = useAuth0();
+    const { isAuthenticated, getAccessTokenSilently, loginWithRedirect } = useAuth0();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,13 +39,22 @@ const HomePage: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleJoinRoom = (roomId: string) => {
+    const handleJoinRoom = async (roomId: string) => {
         if (!isAuthenticated) {
             loginWithRedirect();
             return;
         }
-        navigate(`/game/${roomId}`);
-      };
+    
+        try {
+            const token = await getAccessTokenSilently();
+            await joinGameRoom(roomId, token);
+            navigate(`/game/${roomId}`);
+        } catch (err) {
+            setError('Failed to join game room');
+            console.error(err);
+        }
+    };
+    
 
     const handleCreateRoom = async () => {
         if (!isAuthenticated) {
@@ -54,12 +63,13 @@ const HomePage: React.FC = () => {
         }
 
         try {
+            const token = await getAccessTokenSilently();
             const newRoom = await createGameRoom({
                 name: `Game Room ${Math.floor(Math.random() * 1000)}`,
                 maxPlayers: 4,
                 decks: 1
-            });
-            navigate(`/game/${newRoom.id}`);
+            }, token);
+            // navigate(`/game/${newRoom.gameId}`);
         } catch (err) {
             setError('Failed to create game room');
             console.error(err);

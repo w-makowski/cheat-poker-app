@@ -12,9 +12,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? 'https://yourdomain.com' 
-      : 'http://localhost:3000',
+    // origin: process.env.NODE_ENV === 'production' 
+    //   ? 'https://yourdomain.com' 
+    //   : 'http://localhost:3000',
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173", // Vite dev server
     methods: ['GET', 'POST']
   }
 });
@@ -31,6 +32,6 @@ app.get('/', (req, res) => {
 setupSocketHandlers(io);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server działa na porcie ${PORT}`));
+server.listen(PORT, () => console.log(`Server działa na porcie ${PORT}`));
 
 export default server
