@@ -6,6 +6,7 @@ import GameRoomPage from './pages/GameRoomPage';
 import ProfilePage from './pages/ProfilePage';
 import RulesPage from './pages/RulesPage';
 import LoginPage from './pages/LoginPage';
+import CreateGamePage from './pages/CreateGamePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { SocketProvider } from './contexts/SocketContext';
 import { useUserSync } from './hooks/useUserSync';
@@ -43,6 +44,11 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="create" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CreateGamePage />
+            </ProtectedRoute>
+            } />
         </Route>
       </Routes>
     </SocketProvider>

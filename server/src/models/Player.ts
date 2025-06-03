@@ -12,6 +12,7 @@ interface PlayerAttributes {
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  isHost: boolean
 }
 
 interface PlayerCreationAttributes extends Optional<PlayerAttributes, 'id'> {}
@@ -23,6 +24,7 @@ class Player extends Model<PlayerAttributes, PlayerCreationAttributes> implement
   public position!: number;
   public cardsCount!: number;
   public isActive!: boolean;
+  public isHost!: boolean;
   
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -63,6 +65,11 @@ Player.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true
+  },
+  isHost: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   sequelize,

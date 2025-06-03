@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import { fetchGameRooms, createGameRoom, joinGameRoom } from '../services/gameService';
+import { fetchGameRooms, joinGameRoom } from '../services/gameService';
 
 interface GameRoom {
     id: string;
@@ -48,42 +48,21 @@ const HomePage: React.FC = () => {
         try {
             const token = await getAccessTokenSilently();
             await joinGameRoom(roomId, token);
-            navigate(`/game/${roomId}`);
+            navigate(`/games/${roomId}`);
         } catch (err) {
             setError('Failed to join game room');
             console.error(err);
         }
     };
-    
-
-    const handleCreateRoom = async () => {
-        if (!isAuthenticated) {
-            loginWithRedirect();
-            return;
-        }
-
-        try {
-            const token = await getAccessTokenSilently();
-            const newRoom = await createGameRoom({
-                name: `Game Room ${Math.floor(Math.random() * 1000)}`,
-                maxPlayers: 4,
-                decks: 1
-            }, token);
-            // navigate(`/game/${newRoom.gameId}`);
-        } catch (err) {
-            setError('Failed to create game room');
-            console.error(err);
-        }
-    }
 
     return (
         <div className="home-page">
             <section className="hero">
                 <h1>Welcome to Cheat Poker Game</h1>
                 <p>Test your bluffing skills and poker knowledge in this exciting card game!</p>
-                <button className="btn btn-primary" onClick={handleCreateRoom}>
+                <Link to="/create" className="btn btn-primary">
                     Create New Game
-                </button>
+                </Link>
             </section>
 
             <section className="game-rooms">

@@ -1,16 +1,29 @@
 import { Server, Socket } from 'socket.io';
+import { getUpdatedGameState } from '../utils/utils';
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
     console.log('User connected:', socket.id);
 
     // Joining game
-    socket.on('joinGame', (gameId: string, username: string) => {
+    socket.on('joinGame', ({gameId, username}) => {
       socket.join(gameId);
       console.log(`${username} joined game ${gameId}`);
       
       // Powiadom innych graczy o nowym graczu
-      socket.to(gameId).emit('playerJoined', { id: socket.id, username });
+      // socket.to(gameId).emit('playerJoined', { id: socket.id, username });
+      
+      // const updatedGameState = getUpdatedGameState(gameId); // napisz helper
+
+      // io.to(gameId).emit('gameStateUpdate', updatedGameState);
+
+      try {
+        const updatedGameState = getUpdatedGameState(gameId);
+        io.to(gameId).emit('gameStateUpdate', updatedGameState);
+      } catch (err) {
+        console.error('Failed to fetch game state after join:', err);
+        socket.emit('gameError', 'Failed to update game state');
+      }
     });
 
     // Obsługa rozgrywki - gracz zgłasza swój układ pokerowy

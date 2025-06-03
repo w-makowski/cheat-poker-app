@@ -44,7 +44,8 @@ export async function createGame(req: Request, res: Response) {
             gameId: game.id,
             position: 0,
             cardsCount: 1,
-            isActive: true
+            isActive: true,
+            isHost: true
         });
 
         res.status(201).json({
@@ -116,7 +117,8 @@ export async function joinGame(req: Request, res: Response) {
             gameId,
             position: playerCount,
             cardsCount: 1,
-            isActive: true
+            isActive: true,
+            isHost: false
         });
 
         res.json({
@@ -161,7 +163,7 @@ export async function getGameDetails(req: Request, res: Response) {
         include: [
           {
             model: Player,
-            include: [{ model: User, attributes: ['id', 'username'] }]
+            include: [{ model: User, attributes: ['id', 'username', 'auth0Id'] }]
           }
         ]
       });

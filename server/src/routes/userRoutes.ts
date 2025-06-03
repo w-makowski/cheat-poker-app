@@ -12,7 +12,7 @@ const getMeHandler = async (req: Request, res: Response, next: NextFunction) => 
     console.log('auth:', auth);
 
     const auth0Id = auth?.sub;
-    const email = auth?.['https://cheat-poker-game-user/email'];
+    const email = auth?.[process.env.AUTH0_ACCESS_TOKEN_DOMAIN+'email'];
     const username = auth?.[process.env.AUTH0_ACCESS_TOKEN_DOMAIN+'username'];
 
     console.log('Email:', email);

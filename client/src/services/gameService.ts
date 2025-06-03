@@ -7,6 +7,7 @@ interface GameRoom {
     id: string;
     name: string;
     status: string;
+    players: number
     maxPlayers: number;
     currentPlayers: number;
 }
