@@ -6,7 +6,7 @@ export function setupSocketHandlers(io: Server) {
     console.log('User connected:', socket.id);
 
     // Joining game
-    socket.on('joinGame', ({gameId, username}) => {
+    socket.on('joinGame', async ({gameId, username}) => {
       socket.join(gameId);
       console.log(`${username} joined game ${gameId}`);
       
@@ -18,7 +18,7 @@ export function setupSocketHandlers(io: Server) {
       // io.to(gameId).emit('gameStateUpdate', updatedGameState);
 
       try {
-        const updatedGameState = getUpdatedGameState(gameId);
+        const updatedGameState = await getUpdatedGameState(gameId);
         io.to(gameId).emit('gameStateUpdate', updatedGameState);
       } catch (err) {
         console.error('Failed to fetch game state after join:', err);
