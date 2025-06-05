@@ -4,17 +4,18 @@ import { createDeck, shuffleDeck, dealCards } from '../utils/deck';
 import { getNextActivePlayerIndex } from '../utils/gameHelpers';
 import { handStrength, compareHands } from '../utils/pokerHands';
 import { validateDeclaredHand } from '../utils/validateDeclaredHand';
+import {updateGameStatus} from "../repositories/gameRepository";
 
-const activeGames = new Map<string, GameState>();
+export const activeGames = new Map<string, GameState>();
 
 
-export function initializeGame(
+export async function initializeGame(
     gameId: string,
     players: Player[],
     decks: number,
     name?: string,
     maxPlayers?: number
-): GameState {
+): Promise<GameState> {
     const deck = shuffleDeck(createDeck(decks));
     const dealConfig: DealConfig = {};
     for (let i = 0; i < players.length; i++) {
@@ -28,8 +29,8 @@ export function initializeGame(
 
     const gameState: GameState = {
         id: gameId,
-        name: name || '', // <-- add this
-        maxPlayers: maxPlayers || players.length, // <-- add this
+        name: name || '',
+        maxPlayers: maxPlayers || players.length,
         players,
         currentTurn: 1,
         startingPlayerIndex: 0,
@@ -41,6 +42,9 @@ export function initializeGame(
     };
 
     activeGames.set(gameId, gameState);
+
+    // Update the game status in the database
+    await updateGameStatus(gameId, 'active');
 
     return gameState;
 }
@@ -76,7 +80,7 @@ export function declareHand(gameId: string, playerId: string, declaredHand: Comp
     game.lastDeclaredHand = { playerId, declaredHand };
     // game.currentPlayerIndex = (game.startingPlayerIndex + game.currentPlayerIndex + 1) % game.players.length;
     game.currentPlayerIndex = getNextActivePlayerIndex(game, game.currentPlayerIndex);
-
+    game.currentTurn = game.currentPlayerIndex; // <-- Add this line
     return true;
 }
 

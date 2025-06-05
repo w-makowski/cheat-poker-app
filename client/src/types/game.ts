@@ -21,11 +21,6 @@ export enum CardRank {
     ACE = 'A'
 }
 
-export const RANK_VALUES: Record<CardRank, number> = {
-    '2': 2, '3': 3, '4': 4, '5': 5,
-    '6': 6, '7': 7, '8': 8, '9': 9,
-    '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14
-}
 
 export interface Card {
     suit: CardSuit;
@@ -89,19 +84,55 @@ export interface GameControlsProps {
 }
 
 
+// Add this to client/src/types/game.ts
+
+export const RANK_VALUES: Record<CardRank, number> = {
+    [CardRank.TWO]: 2,
+    [CardRank.THREE]: 3,
+    [CardRank.FOUR]: 4,
+    [CardRank.FIVE]: 5,
+    [CardRank.SIX]: 6,
+    [CardRank.SEVEN]: 7,
+    [CardRank.EIGHT]: 8,
+    [CardRank.NINE]: 9,
+    [CardRank.TEN]: 10,
+    [CardRank.JACK]: 11,
+    [CardRank.QUEEN]: 12,
+    [CardRank.KING]: 13,
+    [CardRank.ACE]: 14,
+};
+
 export function handStrength(hand: PokerHand): number {
-    const strengths: Record<PokerHand, number> = {
-      [PokerHand.HIGH_CARD]: 1,
-      [PokerHand.PAIR]: 2,
-      [PokerHand.TWO_PAIR]: 3,
-      [PokerHand.FLUSH]: 4,
-      [PokerHand.THREE_OF_A_KIND]: 5,
-      [PokerHand.STRAIGHT]: 6,
-      [PokerHand.FULL_HOUSE]: 7,
-      [PokerHand.FOUR_OF_A_KIND]: 8,
-      [PokerHand.STRAIGHT_FLUSH]: 9,
-      [PokerHand.ROYAL_FLUSH]: 10
-    };
-  
-    return strengths[hand] || 0;
+    switch (hand) {
+        case PokerHand.HIGH_CARD: return 1;
+        case PokerHand.PAIR: return 2;
+        case PokerHand.TWO_PAIR: return 3;
+        case PokerHand.FLUSH: return 4;
+        case PokerHand.THREE_OF_A_KIND: return 5;
+        case PokerHand.STRAIGHT: return 6;
+        case PokerHand.FULL_HOUSE: return 7;
+        case PokerHand.FOUR_OF_A_KIND: return 8;
+        case PokerHand.STRAIGHT_FLUSH: return 9;
+        case PokerHand.ROYAL_FLUSH: return 10;
+        default: return 0;
+    }
+}
+
+export function compareHands(a: CompleteHand, b: CompleteHand): -1 | 0 | 1 {
+    const strengthA = handStrength(a.hand);
+    const strengthB = handStrength(b.hand);
+
+    if (strengthA !== strengthB) {
+        return strengthA > strengthB ? 1 : -1;
+    }
+
+    for (let i = 0; i < Math.max(a.ranks.length, b.ranks.length); i++) {
+        const aVal = RANK_VALUES[a.ranks[i]];
+        const bVal = RANK_VALUES[b.ranks[i]];
+        if (aVal !== bVal) {
+            return aVal > bVal ? 1 : -1;
+        }
+    }
+
+    return 0;
 }

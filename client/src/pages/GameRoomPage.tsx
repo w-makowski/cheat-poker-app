@@ -48,6 +48,7 @@ const GameRoomPage: React.FC = () => {
         socket.emit('joinGame', { gameId: gameId, username: user?.nickname, auth0Id: user?.sub });
 
         socket.on('gameStateUpdate', (updatedState: GameState) => {
+            console.log('Received gameStateUpdate:', updatedState);
             const gameData = transformGameResponse(updatedState);
             setGameState(gameData);
         });
@@ -67,11 +68,25 @@ const GameRoomPage: React.FC = () => {
             setError(errorMsg);
         });
 
+        socket.on('gameUpdate', (data) => {
+            console.log('Received gameUpdate:', data);
+            // Update the game state as needed
+            // For example, update lastDeclaredHand:
+            setGameState(prev => prev ? {
+                ...prev,
+                lastDeclaredHand: {
+                    playerId: data.playerId,
+                    declaredHand: data.declaredHand
+                }
+            } : prev);
+        });
+
         return () => {
             socket.off('gameStateUpdate');
             socket.off('gameStarted');
             socket.off('playerCards');
             socket.off('gameError');
+            socket.off('gameUpdate');
             socket.emit('leaveGame', { gameId });
         };
     }, [socket, connected, gameId]);
@@ -86,7 +101,7 @@ const GameRoomPage: React.FC = () => {
         if (socket && connected) {
             socket.emit('declareHand', { gameId, completeHand });
         }
-      };
+    };
       
     
     const handleChallengeDeclaration = () => {

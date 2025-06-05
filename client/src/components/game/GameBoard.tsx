@@ -10,13 +10,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
     return (
         <div className="game-board">
             <div className="game-info">
-            <h2>Game in Progress</h2>
-            {gameState.lastDeclaration && (
-                <div className="last-declaration">
-                <h3>Last Declaration</h3>
-                <p><strong>Hand:</strong> {gameState.lastDeclaration.handType}</p>
-                </div>
-            )}
+                <h2>Game in Progress</h2>
+                {gameState.lastDeclaredHand && (
+                    <div className="last-declaration">
+                        <h3>Last Declaration</h3>
+                        <p>
+                            <strong>Hand:</strong>
+                            {gameState.lastDeclaredHand.declaredHand.hand.replace(/_/g, ' ')}
+                            {gameState.lastDeclaredHand.declaredHand.ranks && gameState.lastDeclaredHand.declaredHand.ranks.length > 0 && (
+                                <> ({gameState.lastDeclaredHand.declaredHand.ranks.join(', ')})</>
+                            )}
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="player-hand">
@@ -55,10 +61,13 @@ function getSuitSymbol(suit: string): string {
             return '♥';
         case 'diamonds':
             return '♦';
-        case 'clubs': return '♣';
-        case 'spades': return '♠';
-        default: return suit;
+        case 'clubs':
+            return '♣';
+        case 'spades':
+            return '♠';
+        default:
+            return suit;
     }
 }
-  
+
 export default GameBoard;
