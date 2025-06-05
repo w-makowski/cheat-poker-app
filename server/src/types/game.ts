@@ -70,6 +70,8 @@ export interface Player {
 
 export interface GameState {
     id: string;
+    name: string;
+    maxPlayers: number;
     players: Player[];
     currentTurn: number;
     startingPlayerIndex: number;

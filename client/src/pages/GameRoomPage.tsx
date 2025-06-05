@@ -44,28 +44,32 @@ const GameRoomPage: React.FC = () => {
 
     useEffect(() => {
         if (!socket || !connected || !gameId) return;
-    
-        // Join the game room
-        socket.emit('joinGame', { gameId: gameId, username: user?.nickname });
-    
-        // Listen for game state updates
+
+        socket.emit('joinGame', { gameId: gameId, username: user?.nickname, auth0Id: user?.sub });
+
         socket.on('gameStateUpdate', (updatedState: GameState) => {
             const gameData = transformGameResponse(updatedState);
             setGameState(gameData);
         });
-    
-        // Listen for player cards
+
+        socket.on('gameStarted', (gameStateRaw) => {
+            console.log('Received gameStarted:', gameStateRaw);
+            const gameData = transformGameResponse(gameStateRaw);
+            setGameState(gameData);
+        });
+
         socket.on('playerCards', (cards: Card[]) => {
+            console.log('Received player cards:', cards);
             setPlayerCards(cards);
         });
-    
-        // Listen for errors
+
         socket.on('gameError', (errorMsg: string) => {
             setError(errorMsg);
         });
-    
+
         return () => {
             socket.off('gameStateUpdate');
+            socket.off('gameStarted');
             socket.off('playerCards');
             socket.off('gameError');
             socket.emit('leaveGame', { gameId });

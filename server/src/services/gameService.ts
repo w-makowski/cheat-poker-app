@@ -7,7 +7,14 @@ import { validateDeclaredHand } from '../utils/validateDeclaredHand';
 
 const activeGames = new Map<string, GameState>();
 
-export function initializeGame(gameId: string, players: Player[], decks: number): GameState {
+
+export function initializeGame(
+    gameId: string,
+    players: Player[],
+    decks: number,
+    name?: string,
+    maxPlayers?: number
+): GameState {
     const deck = shuffleDeck(createDeck(decks));
     const dealConfig: DealConfig = {};
     for (let i = 0; i < players.length; i++) {
@@ -17,10 +24,12 @@ export function initializeGame(gameId: string, players: Player[], decks: number)
 
     players.forEach((player, index) => {
         player.cards = playerHands[index];
-    })
+    });
 
     const gameState: GameState = {
         id: gameId,
+        name: name || '', // <-- add this
+        maxPlayers: maxPlayers || players.length, // <-- add this
         players,
         currentTurn: 1,
         startingPlayerIndex: 0,

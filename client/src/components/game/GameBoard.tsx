@@ -18,41 +18,43 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
                 </div>
             )}
             </div>
-    
+
             <div className="player-hand">
-            <h3>Your Cards</h3>
-            {playerCards ? (
-                <div className="cards-container">
-                {playerCards.cards.map((card: any, index: number) => (
-                    <div key={index} className={`card ${card.suit.toLowerCase()}`}>
-                    <span className="card-value">{card.value}</span>
-                    <span className="card-suit">{getSuitSymbol(card.suit)}</span>
+                <h3>Your Cards</h3>
+                {playerCards && playerCards.length > 0 ? (
+                    <div className="cards-container">
+                        {playerCards.map((card: any, index: number) => (
+                            <div key={index} className={`card ${card.suit.toLowerCase()}`}>
+                                <span className="card-value">{card.value || card.rank}</span>
+                                <span className="card-suit">{getSuitSymbol(card.suit)}</span>
+                            </div>
+                        ))}
                     </div>
-                ))}
-                </div>
-            ) : (
-                <p>Waiting for cards...</p>
-            )}
+                ) : (
+                    <p>Waiting for cards...</p>
+                )}
             </div>
-    
+
             <div className="turn-indicator">
-            {isPlayerTurn ? (
-                <div className="your-turn">It's your turn!</div>
-            ) : (
-                <div className="waiting-turn">
-                Waiting for player {gameState.players[gameState.currentTurn]?.username} to make a move...
-                </div>
-            )}
+                {isPlayerTurn ? (
+                    <div className="your-turn">It's your turn!</div>
+                ) : (
+                    <div className="waiting-turn">
+                        Waiting for player {gameState.players[gameState.currentTurn]?.username} to make a move...
+                    </div>
+                )}
             </div>
         </div>
     );
 };
-  
+
 
 function getSuitSymbol(suit: string): string {
     switch (suit.toLowerCase()) {
-        case 'hearts': return '♥';
-        case 'diamonds': return '♦';
+        case 'hearts':
+            return '♥';
+        case 'diamonds':
+            return '♦';
         case 'clubs': return '♣';
         case 'spades': return '♠';
         default: return suit;
