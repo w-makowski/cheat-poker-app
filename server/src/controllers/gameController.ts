@@ -45,7 +45,8 @@ export async function createGame(req: Request, res: Response) {
             position: 0,
             cardsCount: 1,
             isActive: true,
-            isHost: true
+            isHost: true,
+            auth0Id: user.auth0Id
         });
 
         res.status(201).json({
@@ -118,7 +119,8 @@ export async function joinGame(req: Request, res: Response) {
             position: playerCount,
             cardsCount: 1,
             isActive: true,
-            isHost: false
+            isHost: false,
+            auth0Id: user.auth0Id
         });
 
         res.json({

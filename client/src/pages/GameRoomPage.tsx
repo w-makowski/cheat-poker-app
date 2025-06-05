@@ -132,11 +132,26 @@ const GameRoomPage: React.FC = () => {
     console.log('Game State:', gameState);
     // Find current player
     const currentPlayer = gameState.players.find(
-        (player) => player.auth === user?.sub
+        (player) => player.auth0Id === user?.sub
     );
 
-    const isPlayerTurn = gameState.status === 'active' && currentPlayer && gameState.players[gameState.currentPlayerIndex]?.id === currentPlayer.id;
+    console.log('Players:', gameState.players);
+    console.log('Current user sub:', user?.sub);
 
+    console.log('Current Player:', currentPlayer);
+
+// Find the player whose turn it is
+    const currentTurnPlayer = gameState.players[gameState.currentPlayerIndex];
+    console.log('Current Turn Player:', currentTurnPlayer);
+
+// Calculate if it's this player's turn
+    const isPlayerTurn =
+        gameState.status === 'active' &&
+        currentPlayer &&
+        currentTurnPlayer &&
+        currentPlayer.auth0Id === currentTurnPlayer.auth0Id;
+
+    console.log('isPlayerTurn:', isPlayerTurn);
     const isHost = currentPlayer?.isHost || false;
 
     return (
@@ -184,7 +199,7 @@ const GameRoomPage: React.FC = () => {
                         <GameBoard 
                             gameState={gameState} 
                             playerCards={playerCards} 
-                            isPlayerTurn={isPlayerTurn!} 
+                            isPlayerTurn={isPlayerTurn!}
                         />
                         
                         {gameState.status === 'active' && (

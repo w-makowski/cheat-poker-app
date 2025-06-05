@@ -57,7 +57,7 @@ export interface Player {
     cardsCount: number;
     isActive: boolean;
     position: number;
-    auth: string
+    auth0Id: string
     isHost: boolean;
 }
 

@@ -66,6 +66,7 @@ export interface Player {
     cardsCount: number;
     isActive: boolean;
     position: number;
+    auth0Id: string;
 }
 
 export interface GameState {

@@ -25,7 +25,7 @@ export const transformGameResponse = (game: any): GameState => {
             cardsCount: player.cardsCount,
             isActive: player.isActive,
             position: player.position,
-            auth: player.User?.auth0Id ?? player.auth ?? '',
+            auth0Id: player.auth0Id ?? player.User?.auth0Id ?? player.auth ?? '',
             isHost: player.isHost,
         })),
         startingPlayerIndex: game.startingPlayerIndex ?? 0,
