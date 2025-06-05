@@ -106,7 +106,7 @@ const GameRoomPage: React.FC = () => {
     
     const handleChallengeDeclaration = () => {
         if (socket && connected) {
-            socket.emit('challengeDeclaration', { gameId });
+            socket.emit('checkPreviousPlayer', { gameId });
         }
     };
 
