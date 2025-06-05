@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { getUpdatedGameState } from '../utils/utils';
-import {checkPreviousPlayer, declareHand, initializeGame} from "../services/gameService";
+import {activeGames, checkPreviousPlayer, declareHand, initializeGame, startNewRound} from "../services/gameService";
 import {getPlayersByGameId} from "../repositories/playerRepository";
 import {CardRank, PokerHand} from "../types/game";
 
@@ -94,7 +94,6 @@ export function setupSocketHandlers(io: Server) {
 
     socket.on('checkPreviousPlayer', async (data: { gameId: string }) => {
       try {
-        // Find the player by socket ID
         const gameIdNum = Number(data.gameId);
         const players = await getPlayersByGameId(gameIdNum);
         const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
@@ -106,19 +105,32 @@ export function setupSocketHandlers(io: Server) {
 
         // Run the challenge logic
         const { isBluffing, nextRoundPenaltyPlayer } = checkPreviousPlayer(data.gameId, player.id);
-        console.log(`Player ${player.username} challenged previous player. Bluffing: ${isBluffing}, Next penalty player: ${nextRoundPenaltyPlayer}`);
-        // Emit the result to all players in the room
         io.to(data.gameId).emit('checkResult', {
           isBluffing,
           nextRoundPenaltyPlayer,
         });
+
+        // Start a new round (deal new cards)
+        const roundStarted = startNewRound(data.gameId);
+
+        // After startNewRound(data.gameId)
+        const game = activeGames.get(data.gameId);
+        if (game) {
+          game.players.forEach(p => {
+            if (p.isActive) {
+              const playerSocketId = playerIdToSocketId.get(p.id);
+              if (playerSocketId) {
+                io.to(playerSocketId).emit('playerCards', p.cards);
+              }
+            }
+          });
+        }
 
         // Emit updated game state
         const updatedGameState = await getUpdatedGameState(data.gameId);
         io.to(data.gameId).emit('gameStateUpdate', updatedGameState);
 
       } catch (err) {
-        console.error('Error during challenge:', err);
         socket.emit('gameError', 'Server error during challenge');
       }
     });

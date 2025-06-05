@@ -110,7 +110,7 @@ export function checkPreviousPlayer(gameId: string, playerId: string): { isBluff
 
 function endRound(gameId: string, penaltyPlayerId: string): string | null {
     const game = activeGames.get(gameId);
-  
+
     if (!game) {
         return null;
     }
@@ -145,6 +145,10 @@ function endRound(gameId: string, penaltyPlayerId: string): string | null {
     return null
 }
 
+// server/src/services/gameService.ts
+
+// server/src/services/gameService.ts
+
 export function startNewRound(gameId: string): boolean {
     const game = activeGames.get(gameId);
     if (!game || game.status !== 'active') {
@@ -152,26 +156,34 @@ export function startNewRound(gameId: string): boolean {
     }
 
     const deck = shuffleDeck(createDeck(game.deckCount));
-    const dealConfig: DealConfig = {};
-
     const activePlayers = game.players.filter(p => p.isActive);
 
+    // Prepare dealConfig for active players only
+    const dealConfig: DealConfig = {};
     activePlayers.forEach((player, index) => {
         dealConfig[index] = player.cardsCount;
-    })
+    });
 
     const playerHands = dealCards(deck, dealConfig);
 
-    let acitveIndex = 0;
-    for(let i = 0; i < game.players.length; i++) {
-        const player = game.players[i];
-        if (player.isActive) {
-            player.cards = playerHands[acitveIndex];
-            acitveIndex++;
-        } else {
+    // Assign new hands only to active players
+    activePlayers.forEach((player, index) => {
+        player.cards = playerHands[index] || [];
+    });
+
+    // Set inactive players' hands to empty
+    game.players.forEach(player => {
+        if (!player.isActive) {
             player.cards = [];
         }
-    }
+    });
+
+    // Set startingPlayerIndex to the next active player
+    let nextStarter = game.startingPlayerIndex;
+    do {
+        nextStarter = (nextStarter + 1) % game.players.length;
+    } while (!game.players[nextStarter].isActive);
+    game.startingPlayerIndex = nextStarter;
 
     game.currentPlayerIndex = 0;
     game.lastDeclaredHand = null;
