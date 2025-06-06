@@ -180,6 +180,27 @@ const GameRoomPage: React.FC = () => {
 
     const getPlayerName = (id: string) => gameState.players.find(p => p.id === id)?.username || 'Unknown';
 
+    // Find the active player for the current turn (skip inactive players)
+    const getActivePlayerId = () => {
+        if (!gameState) return undefined;
+        const { players, startingPlayerIndex, currentPlayerIndex } = gameState;
+        // Find the Nth active player, where N = currentPlayerIndex
+        let activeIndex = -1;
+        for (let i = 0, count = 0; i < players.length; i++) {
+            const idx = (startingPlayerIndex + i) % players.length;
+            if (players[idx].isActive) {
+                if (count === currentPlayerIndex) {
+                    activeIndex = idx;
+                    break;
+                }
+                count++;
+            }
+        }
+        return activeIndex !== -1 ? players[activeIndex].id : undefined;
+    };
+
+    const activePlayerId = getActivePlayerId();
+
     return (
         <>
             {checkResult && (
@@ -245,8 +266,8 @@ const GameRoomPage: React.FC = () => {
                     <div className="sidebar">
                         <PlayerList
                             players={gameState.players}
-                            currentTurn={gameState.currentTurn}
                             currentPlayerId={currentPlayer?.id || ''}
+                            activePlayerId={activePlayerId}
                         />
 
                         {gameState.status === 'waiting' && isHost && (

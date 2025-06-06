@@ -91,16 +91,15 @@ export function checkPreviousPlayer(gameId: string, playerId: string): { isBluff
         throw new Error('Invalid game state');
     }
 
-    const previousPlayerIndex = (game.startingPlayerIndex + game.currentPlayerIndex - 1 + game.players.length) % game.players.length;
-    const previousPlayerId = game.players[previousPlayerIndex].id;
-
     const allCards = game.players.flatMap(p => p.cards);
 
     const isBluffing = !validateDeclaredHand(
         allCards,
         game.lastDeclaredHand.declaredHand
-    )
+    );
 
+    // Always assign penalty to the last declarer if bluffing
+    const previousPlayerId = game.lastDeclaredHand.playerId;
     const nextRoundPenaltyPlayer = isBluffing ? previousPlayerId : playerId;
 
     endRound(gameId, nextRoundPenaltyPlayer);
@@ -186,16 +185,6 @@ export function startNewRound(gameId: string): boolean {
     return true;
 }
 
-export function getPlayersCards(gameId: string) {
-    const game = activeGames.get(gameId);
-    if (!game) return [];
-    return game.players.map(player => ({
-        id: player.id,
-        username: player.username,
-        cards: player.cards
-    }));
-}
-
 export function getCheckResultData(gameId: string) {
     const game = activeGames.get(gameId);
     if (!game || !game.lastDeclaredHand) {
@@ -206,14 +195,36 @@ export function getCheckResultData(gameId: string) {
         };
     }
     return {
-        players_cards: getPlayersCards(gameId),
+        players_cards: game.players.map(player => ({
+            id: player.id,
+            username: player.username,
+            cards: player.cards
+        })),
         checkedHand: game.lastDeclaredHand.declaredHand,
         checkedPlayerId: game.lastDeclaredHand.playerId
     };
 }
 
-//game.players.map(player => ({
-//             id: player.id,
-//             username: player.username,
-//             cards: player.cards
-//         })),
+export function handlePlayerLeaveInMemory(gameId: string, playerId: string) {
+    const game = activeGames.get(gameId);
+    if (!game) return;
+
+    const memPlayer = game.players.find(p => p.id === playerId);
+    if (!memPlayer) return;
+
+    if (game.status === 'active') {
+        const wasCurrentTurn = (() => {
+            const idx = game.players.findIndex(p => p.id === playerId);
+            return idx === (game.startingPlayerIndex + game.currentPlayerIndex) % game.players.length;
+        })();
+
+        memPlayer.isActive = false;
+
+        // If the leaving player was the current turn, advance to next active player
+        if (wasCurrentTurn) {
+            game.currentPlayerIndex = getNextActivePlayerIndex(game, game.currentPlayerIndex);
+        }
+    } else {
+        game.players = game.players.filter(p => p.id !== playerId);
+    }
+}

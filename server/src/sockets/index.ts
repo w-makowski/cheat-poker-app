@@ -3,7 +3,7 @@ import { getUpdatedGameState } from '../utils/utils';
 import {
   activeGames,
   checkPreviousPlayer,
-  declareHand, getCheckResultData,
+  declareHand, getCheckResultData, handlePlayerLeaveInMemory,
   initializeGame,
   startNewRound
 } from "../services/gameService";
@@ -20,27 +20,19 @@ export function setupSocketHandlers(io: Server) {
 
     // Joining game
     socket.on('joinGame', async ({gameId, username, auth0Id}) => {
-      console.log(`[SOCKET] joinGame called: gameId=${gameId}, username=${username}, auth0Id=${auth0Id}`);
       socket.join(gameId);
-      console.log(`[SOCKET] Socket ${socket.id} joined room ${gameId}`);
 
       try {
         const updatedGameState = await getUpdatedGameState(gameId);
-        console.log(`[SOCKET] Emitting gameStateUpdate to room ${gameId}`, updatedGameState);
         io.to(gameId).emit('gameStateUpdate', updatedGameState);
       } catch (err) {
-        console.error('[SOCKET] Failed to fetch game state after join:', err);
         socket.emit('gameError', 'Failed to update game state');
       }
       const players = await getPlayersByGameId(gameId);
-      console.log(`[SOCKET] Players in game ${gameId}:`, players.map(p => ({id: p.id, username: p.username, auth0Id: p.auth0Id})));
       const player = players.find(p => p.auth0Id === auth0Id);
 
       if (player) {
         playerIdToSocketId.set(player.id, socket.id);
-        console.log(`[SOCKET] playerIdToSocketId set: ${player.id} -> ${socket.id}`);
-      } else {
-        console.warn(`[SOCKET] Player with auth0Id ${auth0Id} not found in game ${gameId}`);
       }
     });
 
@@ -160,7 +152,7 @@ export function setupSocketHandlers(io: Server) {
 
         // Remove player from game in DB and memory
         await removePlayerFromGame(gameId, leavingPlayer.id); // Implement this in your repository/service
-
+        handlePlayerLeaveInMemory(gameId, leavingPlayer.id);
         // Remove from socket map
         playerIdToSocketId.delete(leavingPlayer.id);
 

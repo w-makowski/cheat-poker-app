@@ -1,5 +1,6 @@
 import Player from '../models/Player';
 import User from '../models/User';
+import Game from "../models/Game";
 
 export async function getPlayersByGameId(gameId: number) {
     const players = await Player.findAll({
@@ -23,11 +24,16 @@ export async function getPlayersByGameId(gameId: number) {
 }
 
 // Removes a player from a game by gameId and playerId
-export async function removePlayerFromGame(gameId: string | number, playerId: string | number): Promise<void> {
-    await Player.destroy({
-        where: {
-            gameId,
-            id: playerId
-        }
-    });
+
+export async function removePlayerFromGame(gameId: string, playerId: string) {
+    const game = await Game.findByPk(gameId);
+    if (!game) return;
+
+    if (game.status === 'active') {
+        // Set isActive to false
+        await Player.update({ isActive: false }, { where: { id: playerId } });
+    } else {
+        // Remove player from DB
+        await Player.destroy({ where: { id: playerId } });
+    }
 }

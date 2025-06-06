@@ -11,38 +11,46 @@ interface Player {
 
 interface PlayerListProps {
     players: Player[];
-    currentTurn: number;
     currentPlayerId: string;
+    activePlayerId?: string; // <-- Add this prop
 }
 
-const PlayerList: React.FC<PlayerListProps> = ({players, currentTurn, currentPlayerId}) => {
+const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerId, activePlayerId }) => {
     // Sort players by position
     const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
-  
+
     return (
         <div className="player-list">
             <h3>Players</h3>
             <div className="players">
-            {sortedPlayers.map((player) => (
-                <div 
-                key={player.id}
-                className={`player-item ${player.id === currentPlayerId ? 'current-player' : ''} 
-                ${players[currentTurn]?.id === player.id ? 'active-turn' : ''} ${!player.isActive ? 'inactive' : ''}`}
-                >
-                <div className="player-name">
-                    {player.username}
-                    {player.isHost && <span className="host-badge">Host</span>}
-                    {player.id === currentPlayerId && <span className="you-badge">You</span>}
-                </div>
-                <div className="player-stats">
-                    <span className="cards-count">{player.cardsCount} cards</span>
-                    {!player.isActive && <span className="status-inactive">Out</span>}
-                </div>
-                </div>
-            ))}
+                {sortedPlayers.map((player) => (
+                    <div
+                        key={player.id}
+                        className={`player-item
+                            ${player.id === currentPlayerId ? 'current-player' : ''}
+                            ${player.id === activePlayerId ? 'active-turn' : ''}
+                            ${!player.isActive ? 'inactive' : ''}
+                        `}
+                        style={{
+                            opacity: !player.isActive ? 0.5 : 1,
+                            color: !player.isActive ? '#aaa' : player.id === activePlayerId ? '#2196f3' : undefined,
+                            fontWeight: player.id === activePlayerId ? 'bold' : undefined,
+                        }}
+                    >
+                        <div className="player-name">
+                            {player.username}
+                            {player.isHost && <span className="host-badge">Host</span>}
+                            {player.id === currentPlayerId && <span className="you-badge">You</span>}
+                        </div>
+                        <div className="player-stats">
+                            <span className="cards-count">{player.cardsCount} cards</span>
+                            {!player.isActive && <span className="status-inactive">Out</span>}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
 };
-  
+
 export default PlayerList;
