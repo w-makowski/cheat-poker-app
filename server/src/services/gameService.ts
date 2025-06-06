@@ -185,3 +185,35 @@ export function startNewRound(gameId: string): boolean {
 
     return true;
 }
+
+export function getPlayersCards(gameId: string) {
+    const game = activeGames.get(gameId);
+    if (!game) return [];
+    return game.players.map(player => ({
+        id: player.id,
+        username: player.username,
+        cards: player.cards
+    }));
+}
+
+export function getCheckResultData(gameId: string) {
+    const game = activeGames.get(gameId);
+    if (!game || !game.lastDeclaredHand) {
+        return {
+            players_cards: [],
+            checkedHand: null,
+            checkedPlayerId: null
+        };
+    }
+    return {
+        players_cards: getPlayersCards(gameId),
+        checkedHand: game.lastDeclaredHand.declaredHand,
+        checkedPlayerId: game.lastDeclaredHand.playerId
+    };
+}
+
+//game.players.map(player => ({
+//             id: player.id,
+//             username: player.username,
+//             cards: player.cards
+//         })),

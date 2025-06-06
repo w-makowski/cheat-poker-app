@@ -1,8 +1,11 @@
 import React from 'react';
+import CardSprite from './CardSprite';
+
+import type { GameState, Card } from '../../types/game';
 
 interface GameBoardProps {
-    gameState: any;
-    playerCards: any;
+    gameState: GameState;
+    playerCards: Card[] | null;
     isPlayerTurn: boolean;
 }
 
@@ -29,11 +32,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
                 <h3>Your Cards</h3>
                 {playerCards && playerCards.length > 0 ? (
                     <div className="cards-container">
-                        {playerCards.map((card: any, index: number) => (
-                            <div key={index} className={`card ${card.suit.toLowerCase()}`}>
-                                <span className="card-value">{card.value || card.rank}</span>
-                                <span className="card-suit">{getSuitSymbol(card.suit)}</span>
-                            </div>
+                        {playerCards.map((card, index) => (
+                            <CardSprite key={index} rank={card.rank} suit={card.suit} value={card.rank} />
                         ))}
                     </div>
                 ) : (
@@ -53,21 +53,5 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
         </div>
     );
 };
-
-
-function getSuitSymbol(suit: string): string {
-    switch (suit.toLowerCase()) {
-        case 'hearts':
-            return '♥';
-        case 'diamonds':
-            return '♦';
-        case 'clubs':
-            return '♣';
-        case 'spades':
-            return '♠';
-        default:
-            return suit;
-    }
-}
 
 export default GameBoard;

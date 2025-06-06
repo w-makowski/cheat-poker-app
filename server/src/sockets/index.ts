@@ -1,6 +1,12 @@
 import { Server, Socket } from 'socket.io';
 import { getUpdatedGameState } from '../utils/utils';
-import {activeGames, checkPreviousPlayer, declareHand, initializeGame, startNewRound} from "../services/gameService";
+import {
+  activeGames,
+  checkPreviousPlayer,
+  declareHand, getCheckResultData,
+  initializeGame,
+  startNewRound
+} from "../services/gameService";
 import {getPlayersByGameId} from "../repositories/playerRepository";
 import {CardRank, PokerHand} from "../types/game";
 
@@ -104,10 +110,14 @@ export function setupSocketHandlers(io: Server) {
         }
 
         // Run the challenge logic
+        const { players_cards, checkedHand, checkedPlayerId } = getCheckResultData(data.gameId);
         const { isBluffing, nextRoundPenaltyPlayer } = checkPreviousPlayer(data.gameId, player.id);
         io.to(data.gameId).emit('checkResult', {
           isBluffing,
           nextRoundPenaltyPlayer,
+          checkedHand,
+          checkedPlayerId,
+          players: players_cards
         });
 
         // Start a new round (deal new cards)
