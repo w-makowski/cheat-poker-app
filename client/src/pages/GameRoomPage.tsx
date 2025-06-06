@@ -156,7 +156,7 @@ const GameRoomPage: React.FC = () => {
     console.log('Current Player:', currentPlayer);
 
 // Find the player whose turn it is
-    const currentTurnPlayer = gameState.players[gameState.currentPlayerIndex];
+    const currentTurnPlayer = gameState.players[(gameState.currentPlayerIndex + gameState.startingPlayerIndex) % gameState.players.length];
     console.log('Current Turn Player:', currentTurnPlayer);
 
 // Calculate if it's this player's turn

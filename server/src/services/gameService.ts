@@ -179,11 +179,6 @@ export function startNewRound(gameId: string): boolean {
     });
 
     // Set startingPlayerIndex to the next active player
-    let nextStarter = game.startingPlayerIndex;
-    do {
-        nextStarter = (nextStarter + 1) % game.players.length;
-    } while (!game.players[nextStarter].isActive);
-    game.startingPlayerIndex = nextStarter;
 
     game.currentPlayerIndex = 0;
     game.lastDeclaredHand = null;
