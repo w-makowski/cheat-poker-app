@@ -7,8 +7,9 @@ import {
   initializeGame,
   startNewRound
 } from "../services/gameService";
-import {getPlayersByGameId} from "../repositories/playerRepository";
+import {getPlayersByGameId, removePlayerFromGame} from "../repositories/playerRepository";
 import {CardRank, PokerHand} from "../types/game";
+import {deleteGame, setPlayerAsHost} from "../repositories/gameRepository";
 
 const playerIdToSocketId = new Map<string, string>();
 
@@ -19,22 +20,27 @@ export function setupSocketHandlers(io: Server) {
 
     // Joining game
     socket.on('joinGame', async ({gameId, username, auth0Id}) => {
+      console.log(`[SOCKET] joinGame called: gameId=${gameId}, username=${username}, auth0Id=${auth0Id}`);
       socket.join(gameId);
-      console.log(`${username} joined game ${gameId}`);
+      console.log(`[SOCKET] Socket ${socket.id} joined room ${gameId}`);
 
       try {
         const updatedGameState = await getUpdatedGameState(gameId);
+        console.log(`[SOCKET] Emitting gameStateUpdate to room ${gameId}`, updatedGameState);
         io.to(gameId).emit('gameStateUpdate', updatedGameState);
       } catch (err) {
-        console.error('Failed to fetch game state after join:', err);
+        console.error('[SOCKET] Failed to fetch game state after join:', err);
         socket.emit('gameError', 'Failed to update game state');
       }
-      // Find the player by auth0Id (from socket.request.user or username)
       const players = await getPlayersByGameId(gameId);
+      console.log(`[SOCKET] Players in game ${gameId}:`, players.map(p => ({id: p.id, username: p.username, auth0Id: p.auth0Id})));
       const player = players.find(p => p.auth0Id === auth0Id);
 
       if (player) {
         playerIdToSocketId.set(player.id, socket.id);
+        console.log(`[SOCKET] playerIdToSocketId set: ${player.id} -> ${socket.id}`);
+      } else {
+        console.warn(`[SOCKET] Player with auth0Id ${auth0Id} not found in game ${gameId}`);
       }
     });
 
@@ -142,6 +148,52 @@ export function setupSocketHandlers(io: Server) {
 
       } catch (err) {
         socket.emit('gameError', 'Server error during challenge');
+      }
+    });
+
+    socket.on('leaveGame', async ({ gameId }) => {
+      try {
+        const players = await getPlayersByGameId(gameId);
+        const leavingPlayer = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+
+        if (!leavingPlayer) return;
+
+        // Remove player from game in DB and memory
+        await removePlayerFromGame(gameId, leavingPlayer.id); // Implement this in your repository/service
+
+        // Remove from socket map
+        playerIdToSocketId.delete(leavingPlayer.id);
+
+        // Fetch updated players
+        const updatedPlayers = await getPlayersByGameId(gameId);
+
+        // If no players left, delete game
+        if (updatedPlayers.length === 0) {
+          await deleteGame(gameId); // Implement this in your repository/service
+          activeGames.delete(gameId);
+          io.to(gameId).emit('gameDeleted');
+          return;
+        }
+
+        // If host left, assign new host
+        if (leavingPlayer.isHost) {
+          // Assign first player as new host
+          const newHost = updatedPlayers[0];
+          await setPlayerAsHost(gameId, newHost.id); // Implement this in your repository/service
+          // Optionally update in-memory game state
+          const game = activeGames.get(gameId);
+          if (game) {
+            game.players.forEach(p => p.isHost = (p.id === newHost.id));
+          }
+          io.to(gameId).emit('hostChanged', { newHostId: newHost.id });
+        }
+
+        // Emit updated game state
+        const updatedGameState = await getUpdatedGameState(gameId);
+        io.to(gameId).emit('gameStateUpdate', updatedGameState);
+
+      } catch (err) {
+        socket.emit('gameError', 'Error leaving game');
       }
     });
 

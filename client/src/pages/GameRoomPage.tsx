@@ -44,13 +44,15 @@ const GameRoomPage: React.FC = () => {
             try {
                 setLoading(true);
                 const token = await getAccessTokenSilently();
+                console.log('[CLIENT] Fetching game details for', gameId);
                 const gameDataRaw = await fetchGameDetails(gameId, token);
+                console.log('[CLIENT] Raw game data:', gameDataRaw);
                 const gameData = transformGameResponse(gameDataRaw);
                 setGameState(gameData);
                 setError(null);
             } catch (err) {
                 setError('Failed to load game data');
-                console.error(err);
+                console.error('[CLIENT] Failed to load game data:', err);
             } finally {
                 setLoading(false);
             }
@@ -62,9 +64,11 @@ const GameRoomPage: React.FC = () => {
     useEffect(() => {
         if (!socket || !connected || !gameId) return;
 
+        console.log('[CLIENT] Emitting joinGame', { gameId, username: user?.nickname, auth0Id: user?.sub });
         socket.emit('joinGame', { gameId: gameId, username: user?.nickname, auth0Id: user?.sub });
 
         socket.on('gameStateUpdate', (updatedState: GameState) => {
+            console.log('[CLIENT] Received gameStateUpdate:', updatedState);
             const gameData = transformGameResponse(updatedState);
             setGameState(gameData);
         });

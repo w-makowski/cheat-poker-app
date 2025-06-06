@@ -21,3 +21,13 @@ export async function getPlayersByGameId(gameId: number) {
         cards: []
     }));
 }
+
+// Removes a player from a game by gameId and playerId
+export async function removePlayerFromGame(gameId: string | number, playerId: string | number): Promise<void> {
+    await Player.destroy({
+        where: {
+            gameId,
+            id: playerId
+        }
+    });
+}

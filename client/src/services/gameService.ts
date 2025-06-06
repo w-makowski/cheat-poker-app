@@ -69,19 +69,27 @@ export const createGameRoom = async (roomData: GameRoomCreate, token: string): P
         throw error;
     }
 };
-  
-export const joinGameRoom = async (gameId: string, token: string): Promise<any> => {
+
+interface JoinGameRoomResponse {
+    success: boolean;
+    message: string;
+}
+
+export const joinGameRoom = async (
+    gameId: string,
+    token: string
+): Promise<JoinGameRoomResponse> => {
     try {
         console.log('token:', token);
-        const response = await api.post(`/api/games/join`, {gameId}, {
+        const response = await api.post('/api/games/join', { gameId }, {
             headers: {
-            Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        return response.data;
+        return response.data as JoinGameRoomResponse;
     } catch (error) {
-      console.error('Error joining game room:', error);
-      throw error;
+        console.error('Error joining game room:', error);
+        throw error;
     }
 };
   

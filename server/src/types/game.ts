@@ -67,6 +67,7 @@ export interface Player {
     isActive: boolean;
     position: number;
     auth0Id: string;
+    isHost: boolean;
 }
 
 export interface GameState {
