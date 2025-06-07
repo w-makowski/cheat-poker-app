@@ -41,6 +41,7 @@ const GameRoomPage: React.FC = () => {
         standings: { id: string; username: string; standing: number | null }[];
         winnerId: string | undefined;
     } | null>(null);
+    const [wasKicked, setWasKicked] = useState(false);
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -70,7 +71,6 @@ const GameRoomPage: React.FC = () => {
         socket.emit('joinGame', { gameId: gameId, username: user?.nickname, auth0Id: user?.sub });
 
         socket.on('gameStateUpdate', (updatedState: GameState) => {
-            console.log('[GameRoomPage] Received gameStateUpdate:', updatedState);
             const gameData = transformGameResponse(updatedState);
             setGameState(gameData);
         });
@@ -106,6 +106,12 @@ const GameRoomPage: React.FC = () => {
             setGameFinished(data);
         });
 
+        // Handle being kicked from the game
+        const handleKicked = () => {
+            setWasKicked(true);
+        };
+        socket.on('kickedFromGame', handleKicked);
+
         return () => {
             socket.off('gameFinished');
             socket.off('gameStateUpdate');
@@ -114,6 +120,7 @@ const GameRoomPage: React.FC = () => {
             socket.off('gameError');
             socket.off('gameUpdate');
             socket.off('checkResult');
+            socket.off('kickedFromGame', handleKicked);
         };
     }, [socket, connected, gameId]);
 
@@ -220,6 +227,24 @@ const GameRoomPage: React.FC = () => {
 
     const activePlayerId = getActivePlayerId();
 
+    // Modal for being kicked
+    if (wasKicked) {
+        console.log('Player was kicked from the game');
+        return (
+            <div className="popup-overlay">
+                <div className="popup-content">
+                    <h2>You have been kicked by the host</h2>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate('/')}
+                    >
+                        Return to Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             {checkResult && (
@@ -259,6 +284,10 @@ const GameRoomPage: React.FC = () => {
                             players={gameState.players}
                             currentPlayerId={currentPlayer?.id || ''}
                             activePlayerId={activePlayerId}
+                            isHost={isHost}
+                            onKickPlayer={(playerId) => {
+                                if (socket && connected) socket.emit('kickPlayer', { gameId, playerId });
+                            }}
                         />
 
                         {gameState.status === 'waiting' && isHost && (

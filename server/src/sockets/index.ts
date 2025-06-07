@@ -212,6 +212,51 @@ export function setupSocketHandlers(io: Server) {
       }
     });
 
+    socket.on('kickPlayer', async ({ gameId, playerId }) => {
+      console.log(`[SOCKET] kickPlayer called: gameId=${gameId}, playerId=${playerId}, by socket.id=${socket.id}`);
+
+      const players = await getPlayersByGameId(gameId);
+      console.log('[SOCKET] All players in game:', players.map(p => ({ id: p.id, username: p.username })));
+      const host = players.find(p => p.isHost);
+      const kickedPlayer = players.find(p => String(p.id) === String(playerId));
+
+      console.log(`[SOCKET] Host:`, host);
+      console.log(`[SOCKET] Kicked Player:`, kickedPlayer);
+
+      if (!host) {
+        console.log('[SOCKET] No host found, aborting kick.');
+        return;
+      }
+      if (String(playerId) === String(host.id)) {
+        console.log('[SOCKET] Host tried to kick themselves, aborting.');
+        return;
+      }
+      if (playerId == null) {
+        console.log('[SOCKET] No playerId provided, aborting.');
+        return;
+      }
+      if (playerIdToSocketId.get(String(host.id)) !== socket.id) {
+        console.log('[SOCKET] Non-host tried to kick, aborting.');
+        return;
+      }
+
+      const kickedSocketId = playerIdToSocketId.get(String(playerId));
+      console.log(`[SOCKET] kickedSocketId for playerId ${playerId}:`, kickedSocketId);
+      if (kickedSocketId) {
+        io.to(kickedSocketId).emit('kickedFromGame');
+        console.log(`[SOCKET] Emitted 'kickedFromGame' to socketId: ${kickedSocketId}`);
+        playerIdToSocketId.delete(String(playerId));
+      } else {
+        console.log(`[SOCKET] No socketId found for kicked player, could not emit 'kickedFromGame'.`);
+      }
+
+      const { isGameFinished } = await removePlayerFromGame(gameId, playerId);
+      handlePlayerLeaveInMemory(gameId, playerId);
+
+      const updatedGameState = await getUpdatedGameState(gameId);
+      io.to(gameId).emit('gameStateUpdate', updatedGameState);
+    });
+
 
     socket.on('leaveGame', async ({ gameId }) => {
       console.log(`[SOCKET] leaveGame: gameId=${gameId}, socketId=${socket.id}`);

@@ -628,6 +628,22 @@ button, input, select, textarea {
   font-weight: bold;
 }
 
+.kick-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-left: 0.25rem;
+  transition: background 0.2s;
+}
+.kick-btn:hover, .kick-btn:focus {
+  background: rgb(213.698630137, 43.8356164384, 26.301369863);
+  outline: none;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -695,6 +711,26 @@ button, input, select, textarea {
 }
 .popup-content button {
   margin-top: 1.5rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .home-page .hero {

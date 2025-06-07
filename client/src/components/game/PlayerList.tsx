@@ -7,16 +7,24 @@ interface Player {
     cardsCount: number;
     isActive: boolean;
     isHost: boolean;
-    ready?: boolean; // Add this line
+    ready?: boolean;
 }
 
 interface PlayerListProps {
     players: Player[];
     currentPlayerId: string;
     activePlayerId?: string;
+    isHost?: boolean;
+    onKickPlayer?: (playerId: string) => void;
 }
 
-const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerId, activePlayerId }) => {
+const PlayerList: React.FC<PlayerListProps> = ({
+                                                   players,
+                                                   currentPlayerId,
+                                                   activePlayerId,
+                                                   isHost,
+                                                   onKickPlayer
+                                               }) => {
     const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
     return (
@@ -45,6 +53,15 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerId, activ
                                 <span style={{ marginLeft: 8 }}>
                                     {player.ready ? '✅ Ready' : '❌ Not Ready'}
                                 </span>
+                            )}
+                            {isHost && onKickPlayer && !player.isHost && player.id !== currentPlayerId && (
+                                <button
+                                    className="kick-btn"
+                                    onClick={() => onKickPlayer(player.id)}
+                                    style={{ marginLeft: 8 }}
+                                >
+                                    Kick
+                                </button>
                             )}
                         </div>
                         <div className="player-stats">

@@ -73,4 +73,22 @@
       }
     }
   }
+
+.kick-btn {
+  background: $error-color;
+  color: #fff;
+  border: none;
+  border-radius: $border-radius-sm;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-left: $spacing-xs;
+  transition: background 0.2s;
+
+  &:hover,
+  &:focus {
+    background: darken($error-color, 10%);
+    outline: none;
+  }
+}
   
