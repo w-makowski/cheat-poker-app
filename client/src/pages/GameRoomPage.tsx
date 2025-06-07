@@ -8,7 +8,8 @@ import type { GameState, Card, CompleteHand } from '../types/game';
 import GameBoard from '../components/game/GameBoard';
 import PlayerList from '../components/game/PlayerList';
 import GameControls from '../components/game/GameControls';
-import CardSprite from '../components/game/CardSprite';
+import CheckResultPopup from "../components/common/CheckResultPopup.tsx";
+import GameFinishedPopup from "../components/common/GameFinishedPopup.tsx";
 
 interface CheckResultPlayer {
     id: string;
@@ -216,98 +217,23 @@ const GameRoomPage: React.FC = () => {
     return (
         <>
             {checkResult && (
-                <div className="check-result-popup" style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        background: 'white',
-                        padding: '2rem',
-                        borderRadius: '8px',
-                        minWidth: '320px',
-                        maxWidth: '90vw'
-                    }}>
-                        <h2>RESULT CHECK</h2>
-                        <p>
-                            Checked Hand: {checkResult.checkedHand?.hand.replace(/_/g, ' ')}
-                            {checkResult.checkedHand?.ranks && checkResult.checkedHand.ranks.length > 0 &&
-                                ` (${checkResult.checkedHand.ranks.join(', ')})`}
-                        </p>
-                        <p>
-                            Result: {checkResult.isBluffing ? 'False, ' : 'True, '}
-                            {checkResult.isBluffing
-                                ? `${getPlayerName(checkResult.checkedPlayerId ?? '')} gets a penalty card`
-                                : `${currentPlayer?.username} gets a penalty card`}
-                        </p>
-                        <ul>
-                            {checkResult.players.map((player) => (
-                                <li key={player.id}>
-                                    {player.username}:
-                                    <div className="cards-container" style={{ display: 'flex', gap: '0.25rem', marginLeft: '0.5rem' }}>
-                                        {player.cards.map((card, idx) => (
-                                            <CardSprite key={idx} rank={card.rank} suit={card.suit} value={card.rank} />
-                                        ))}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                        <button className="btn btn-primary" onClick={() => setCheckResult(null)}>Close</button>
-                    </div>
-                </div>
+                <CheckResultPopup
+                    checkResult={checkResult}
+                    currentPlayerName={currentPlayer?.username || ''}
+                    checkedPlayerName={getPlayerName(checkResult.checkedPlayerId ?? '')}
+                    onClose={() => setCheckResult(null)}
+                />
             )}
 
             {gameFinished && (
-                <div className="game-finished-popup" style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    background: 'rgba(0,0,0,0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 2000
-                }}>
-                    <div style={{
-                        background: 'white',
-                        padding: '2rem',
-                        borderRadius: '8px',
-                        minWidth: '320px',
-                        maxWidth: '90vw'
-                    }}>
-                        <h2>Game Finished!</h2>
-                        <p>
-                            Winner: <b>
-                            {gameFinished.standings.find(p => p.id === gameFinished.winnerId)?.username || 'Unknown'}
-                        </b>
-                        </p>
-                        <h3>Standings:</h3>
-                        <ol>
-                            {gameFinished.standings
-                                .sort((a, b) => (a.standing ?? 999) - (b.standing ?? 999))
-                                .map(player => (
-                                    <li key={player.id}>
-                                        {player.username} {player.standing !== null ? `(Place: ${player.standing})` : ''}
-                                    </li>
-                                ))}
-                        </ol>
-                        <button className="btn btn-primary" onClick={() => {
-                            setGameFinished(null);
-                            navigate('/');
-                        }}>
-                            Return to Home
-                        </button>
-                    </div>
-                </div>
+                <GameFinishedPopup
+                    standings={gameFinished.standings}
+                    winnerId={gameFinished.winnerId}
+                    onReturnHome={() => {
+                        setGameFinished(null);
+                        navigate('/');
+                    }}
+                />
             )}
 
             <div className="game-room-page">
