@@ -22,11 +22,14 @@ const HomePage: React.FC = () => {
         const getGameRooms = async () => {
             try {
                 setLoading(true);
+                console.log('[HomePage] Fetching game rooms...');
                 const rooms = await fetchGameRooms();
+                console.log('[HomePage] Fetched game rooms:', rooms);
                 setGameRooms(rooms);
                 setError(null);
             } catch (err) {
                 setError('Failed to fetch game rooms');
+                console.error('[HomePage] Error fetching game rooms:', err);
                 console.error(err);
             } finally {
                 setLoading(false);

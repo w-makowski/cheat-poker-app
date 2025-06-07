@@ -48,11 +48,11 @@ export enum PokerHand {
 export interface Player {
     id: string;
     username: string;
-    // cards: Card[];
     cardsCount: number;
     isActive: boolean;
-    position: number;
-    auth0Id: string
+    position: number; // table position
+    standing?: number | null; // final place in game
+    auth0Id: string;
     isHost: boolean;
 }
 

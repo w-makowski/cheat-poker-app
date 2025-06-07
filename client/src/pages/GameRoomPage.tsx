@@ -36,6 +36,10 @@ const GameRoomPage: React.FC = () => {
     const { user, getAccessTokenSilently } = useAuth0();
     const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
     const navigate = useNavigate();
+    const [gameFinished, setGameFinished] = useState<{
+        standings: { id: string; username: string; standing: number | null }[];
+        winnerId: string | undefined;
+    } | null>(null);
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -100,14 +104,20 @@ const GameRoomPage: React.FC = () => {
             setCheckResult(data);
         });
 
+        socket.on('gameFinished', (data) => {
+            setGameFinished(data);
+        });
+
         return () => {
+            socket.off('gameFinished');
             socket.off('gameStateUpdate');
             socket.off('gameStarted');
             socket.off('playerCards');
             socket.off('gameError');
             socket.off('gameUpdate');
             socket.off('checkResult');
-            socket.emit('leaveGame', { gameId });
+
+            //socket.emit('leaveGame', { gameId });
         };
     }, [socket, connected, gameId]);
 
@@ -201,6 +211,8 @@ const GameRoomPage: React.FC = () => {
 
     const activePlayerId = getActivePlayerId();
 
+
+
     return (
         <>
             {checkResult && (
@@ -251,6 +263,53 @@ const GameRoomPage: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {gameFinished && (
+                <div className="game-finished-popup" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    background: 'rgba(0,0,0,0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2000
+                }}>
+                    <div style={{
+                        background: 'white',
+                        padding: '2rem',
+                        borderRadius: '8px',
+                        minWidth: '320px',
+                        maxWidth: '90vw'
+                    }}>
+                        <h2>Game Finished!</h2>
+                        <p>
+                            Winner: <b>
+                            {gameFinished.standings.find(p => p.id === gameFinished.winnerId)?.username || 'Unknown'}
+                        </b>
+                        </p>
+                        <h3>Standings:</h3>
+                        <ol>
+                            {gameFinished.standings
+                                .sort((a, b) => (a.standing ?? 999) - (b.standing ?? 999))
+                                .map(player => (
+                                    <li key={player.id}>
+                                        {player.username} {player.standing !== null ? `(Place: ${player.standing})` : ''}
+                                    </li>
+                                ))}
+                        </ol>
+                        <button className="btn btn-primary" onClick={() => {
+                            setGameFinished(null);
+                            navigate('/');
+                        }}>
+                            Return to Home
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="game-room-page">
                 <div className="game-header">
                     <h1>{gameState.name}</h1>

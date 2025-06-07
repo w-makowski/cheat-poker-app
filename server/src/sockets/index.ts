@@ -12,14 +12,17 @@ import {CardRank, PokerHand} from "../types/game";
 import {deleteGame, setPlayerAsHost} from "../repositories/gameRepository";
 
 const playerIdToSocketId = new Map<string, string>();
+const leftPlayers = new Set<string>();
+
 
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
-    console.log('User connected:', socket.id);
+    console.log('[SOCKET] User connected:', socket.id);
 
     // Joining game
     socket.on('joinGame', async ({gameId, username, auth0Id}) => {
+      console.log(`[SOCKET] joinGame: gameId=${gameId}, username=${username}, auth0Id=${auth0Id}`);
       socket.join(gameId);
 
       try {
@@ -38,6 +41,7 @@ export function setupSocketHandlers(io: Server) {
 
     // Obsługa rozpoczęcia gry
     socket.on('startGame', async ({ gameId }) => {
+      console.log(`[SOCKET] startGame: gameId=${gameId}`);
       try {
         const players = await getPlayersByGameId(gameId); // <-- await here
         const decks = 1;
@@ -62,6 +66,7 @@ export function setupSocketHandlers(io: Server) {
     // server/src/sockets/index.ts
 
     socket.on('declareHand', async (data: { gameId: string, completeHand: { hand: string, ranks: string[] } }) => {
+      console.log(`[SOCKET] declareHand:`, data);
       try {
         // Find the player by socket ID
         const gameIdNum = Number(data.gameId);
@@ -97,6 +102,7 @@ export function setupSocketHandlers(io: Server) {
     // Inside setupSocketHandlers, replace the checkPreviousPlayer handler:
 
     socket.on('checkPreviousPlayer', async (data: { gameId: string }) => {
+      console.log(`[SOCKET] checkPreviousPlayer:`, data);
       try {
         const gameIdNum = Number(data.gameId);
         const players = await getPlayersByGameId(gameIdNum);
@@ -109,7 +115,8 @@ export function setupSocketHandlers(io: Server) {
 
         // Run the challenge logic
         const { players_cards, checkedHand, checkedPlayerId } = getCheckResultData(data.gameId);
-        const { isBluffing, nextRoundPenaltyPlayer } = checkPreviousPlayer(data.gameId, player.id);
+        const { isBluffing, nextRoundPenaltyPlayer, isGameFinished } = await checkPreviousPlayer(data.gameId, player.id);
+
         io.to(data.gameId).emit('checkResult', {
           isBluffing,
           nextRoundPenaltyPlayer,
@@ -138,22 +145,42 @@ export function setupSocketHandlers(io: Server) {
         const updatedGameState = await getUpdatedGameState(data.gameId);
         io.to(data.gameId).emit('gameStateUpdate', updatedGameState);
 
+        // Emit gameFinished if needed
+        if (isGameFinished) {
+          const standings = await getPlayersByGameId(gameIdNum);
+          // Try to find the winner by standing, fallback to in-memory winner if needed
+          const winnerId =
+              standings.find(p => p.standing === 1)?.id ||
+              (game && game.winner);
+
+          io.to(data.gameId).emit('gameFinished', {
+            standings: standings.map(p => ({
+              id: p.id,
+              username: p.username,
+              standing: p.standing ?? null
+            })),
+            winnerId
+          });
+        }
+
       } catch (err) {
         socket.emit('gameError', 'Server error during challenge');
       }
     });
 
     socket.on('leaveGame', async ({ gameId }) => {
+      console.log(`[SOCKET] leaveGame: gameId=${gameId}, socketId=${socket.id}`);
       try {
         const players = await getPlayersByGameId(gameId);
         const leavingPlayer = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
 
         if (!leavingPlayer) return;
+        if (leftPlayers.has(leavingPlayer.id)) return; // Prevent double leave
+        leftPlayers.add(leavingPlayer.id);
 
         // Remove player from game in DB and memory
-        await removePlayerFromGame(gameId, leavingPlayer.id); // Implement this in your repository/service
+        const { isGameFinished } = await removePlayerFromGame(gameId, leavingPlayer.id);
         handlePlayerLeaveInMemory(gameId, leavingPlayer.id);
-        // Remove from socket map
         playerIdToSocketId.delete(leavingPlayer.id);
 
         // Fetch updated players
@@ -161,7 +188,7 @@ export function setupSocketHandlers(io: Server) {
 
         // If no players left, delete game
         if (updatedPlayers.length === 0) {
-          await deleteGame(gameId); // Implement this in your repository/service
+          await deleteGame(gameId);
           activeGames.delete(gameId);
           io.to(gameId).emit('gameDeleted');
           return;
@@ -169,10 +196,8 @@ export function setupSocketHandlers(io: Server) {
 
         // If host left, assign new host
         if (leavingPlayer.isHost) {
-          // Assign first player as new host
           const newHost = updatedPlayers[0];
-          await setPlayerAsHost(gameId, newHost.id); // Implement this in your repository/service
-          // Optionally update in-memory game state
+          await setPlayerAsHost(gameId, newHost.id);
           const game = activeGames.get(gameId);
           if (game) {
             game.players.forEach(p => p.isHost = (p.id === newHost.id));
@@ -184,6 +209,19 @@ export function setupSocketHandlers(io: Server) {
         const updatedGameState = await getUpdatedGameState(gameId);
         io.to(gameId).emit('gameStateUpdate', updatedGameState);
 
+        // Emit gameFinished if needed
+        if (isGameFinished) {
+          const standings = await getPlayersByGameId(gameId);
+          io.to(gameId).emit('gameFinished', {
+            standings: standings.map(p => ({
+              id: p.id,
+              username: p.username,
+              standing: p.standing ?? null
+            })),
+            winnerId: standings.find(p => p.standing === 1)?.id
+          });
+        }
+
       } catch (err) {
         socket.emit('gameError', 'Error leaving game');
       }
@@ -191,6 +229,7 @@ export function setupSocketHandlers(io: Server) {
 
     // Obsługa rozłączenia
     socket.on('disconnect', () => {
+      console.log('[SOCKET] disconnect:', socket.id);
       for (const [playerId, sId] of playerIdToSocketId.entries()) {
         if (sId === socket.id) {
           playerIdToSocketId.delete(playerId);

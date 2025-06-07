@@ -14,6 +14,7 @@ interface PlayerAttributes {
   updatedAt?: Date;
   isHost: boolean;
   auth0Id: string;
+  standing?: number | null;
 }
 
 interface PlayerCreationAttributes extends Optional<PlayerAttributes, 'id'> {}
@@ -27,6 +28,7 @@ class Player extends Model<PlayerAttributes, PlayerCreationAttributes> implement
   public isActive!: boolean;
   public isHost!: boolean;
   public auth0Id!: string;
+  public standing?: number | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -76,7 +78,12 @@ Player.init({
   auth0Id: { // <-- Add this block
     type: DataTypes.STRING,
     allowNull: false
-  }
+  },
+    standing: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    }
 }, {
   sequelize,
   modelName: 'Player',

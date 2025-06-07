@@ -4,10 +4,10 @@ import { createDeck, shuffleDeck, dealCards } from '../utils/deck';
 import { getNextActivePlayerIndex } from '../utils/gameHelpers';
 import { handStrength, compareHands } from '../utils/pokerHands';
 import { validateDeclaredHand } from '../utils/validateDeclaredHand';
-import {updateGameStatus} from "../repositories/gameRepository";
+import { updateGameStatus } from "../repositories/gameRepository";
+import { removePlayerFromGame } from "../repositories/playerRepository";
 
 export const activeGames = new Map<string, GameState>();
-
 
 export async function initializeGame(
     gameId: string,
@@ -16,6 +16,7 @@ export async function initializeGame(
     name?: string,
     maxPlayers?: number
 ): Promise<GameState> {
+    console.log(`[initializeGame] Initializing game ${gameId} with ${players.length} players`);
     const deck = shuffleDeck(createDeck(decks));
     const dealConfig: DealConfig = {};
     for (let i = 0; i < players.length; i++) {
@@ -43,7 +44,6 @@ export async function initializeGame(
 
     activeGames.set(gameId, gameState);
 
-    // Update the game status in the database
     await updateGameStatus(gameId, 'active');
 
     return gameState;
@@ -52,76 +52,57 @@ export async function initializeGame(
 export function declareHand(gameId: string, playerId: string, declaredHand: CompleteHand): boolean {
     const game = activeGames.get(gameId);
 
-    if (!game) {
-        return false;
-    }
+    if (!game) return false;
 
     const playerIndex = game.players.findIndex(p => p.id === playerId);
-
-    if (playerIndex === -1) {
-        return false;
-    }
+    if (playerIndex === -1) return false;
 
     const actualIndex = (game.startingPlayerIndex + game.currentPlayerIndex) % game.players.length;
-
-    if (playerIndex !== actualIndex) {
-        return false;
-    }
+    if (playerIndex !== actualIndex) return false;
 
     if (game.lastDeclaredHand) {
-
-        // if (handStrength(hand) <= handStrength(game.lastDeclaredHand.hand))
         const comparison = compareHands(declaredHand, game.lastDeclaredHand.declaredHand);
-        if (comparison <= 0) {
-            return false;
-        }
+        if (comparison <= 0) return false;
     }
 
     game.lastDeclaredHand = { playerId, declaredHand };
-    // game.currentPlayerIndex = (game.startingPlayerIndex + game.currentPlayerIndex + 1) % game.players.length;
     game.currentPlayerIndex = getNextActivePlayerIndex(game, game.currentPlayerIndex);
-    game.currentTurn = game.currentPlayerIndex; // <-- Add this line
+    game.currentTurn = game.currentPlayerIndex;
     return true;
 }
 
-export function checkPreviousPlayer(gameId: string, playerId: string): { isBluffing: boolean, nextRoundPenaltyPlayer: string } {
+export async function checkPreviousPlayer(
+    gameId: string,
+    playerId: string
+): Promise<{ isBluffing: boolean, nextRoundPenaltyPlayer: string, isGameFinished: boolean }> {
     const game = activeGames.get(gameId);
-
-    if (!game || !game.lastDeclaredHand) {
-        throw new Error('Invalid game state');
-    }
+    if (!game || !game.lastDeclaredHand) throw new Error('Invalid game state');
 
     const allCards = game.players.flatMap(p => p.cards);
+    const isBluffing = !validateDeclaredHand(allCards, game.lastDeclaredHand.declaredHand);
 
-    const isBluffing = !validateDeclaredHand(
-        allCards,
-        game.lastDeclaredHand.declaredHand
-    );
-
-    // Always assign penalty to the last declarer if bluffing
     const previousPlayerId = game.lastDeclaredHand.playerId;
     const nextRoundPenaltyPlayer = isBluffing ? previousPlayerId : playerId;
 
-    endRound(gameId, nextRoundPenaltyPlayer);
+    const { isGameFinished } = await endRound(gameId, nextRoundPenaltyPlayer);
 
-    return { isBluffing, nextRoundPenaltyPlayer };
+    return { isBluffing, nextRoundPenaltyPlayer, isGameFinished };
 }
 
-function endRound(gameId: string, penaltyPlayerId: string): string | null {
+export async function endRound(
+    gameId: string,
+    penaltyPlayerId: string
+): Promise<{ PenaltyPlayerId: string | null, isGameFinished: boolean }> {
+    console.log(`[endRound] Called for gameId=${gameId}, penaltyPlayerId=${penaltyPlayerId}`);
     const game = activeGames.get(gameId);
-
-    if (!game) {
-        return null;
-    }
+    if (!game) return { PenaltyPlayerId: null, isGameFinished: false };
 
     const penaltyPlayer = game.players.find(player => player.id === penaltyPlayerId);
-    if (!penaltyPlayer) {
-        throw new Error('Penalty player not found');
-    }
+    if (!penaltyPlayer) throw new Error('Penalty player not found');
     penaltyPlayer.cardsCount += 1;
 
     if (penaltyPlayer.cardsCount >= 7) {
-        // remove player from game
+        const { isGameFinished } = await removePlayerFromGame(gameId, penaltyPlayerId);
         penaltyPlayer.isActive = false;
 
         const activePlayers = game.players.filter(player => player.isActive);
@@ -131,33 +112,25 @@ function endRound(gameId: string, penaltyPlayerId: string): string | null {
         }
 
         game.currentPlayerIndex = 0;
-        return penaltyPlayerId;
+        return { PenaltyPlayerId: penaltyPlayerId, isGameFinished };
     }
 
     game.lastDeclaredHand = null;
 
-    // update starting player index for the next round:
     do {
         game.startingPlayerIndex = (game.startingPlayerIndex + 1) % game.players.length;
     } while (!game.players[game.startingPlayerIndex].isActive);
 
-    return null
+    return { PenaltyPlayerId: null, isGameFinished: false };
 }
-
-// server/src/services/gameService.ts
-
-// server/src/services/gameService.ts
 
 export function startNewRound(gameId: string): boolean {
     const game = activeGames.get(gameId);
-    if (!game || game.status !== 'active') {
-        return false;
-    }
+    if (!game || game.status !== 'active') return false;
 
     const deck = shuffleDeck(createDeck(game.deckCount));
     const activePlayers = game.players.filter(p => p.isActive);
 
-    // Prepare dealConfig for active players only
     const dealConfig: DealConfig = {};
     activePlayers.forEach((player, index) => {
         dealConfig[index] = player.cardsCount;
@@ -165,19 +138,13 @@ export function startNewRound(gameId: string): boolean {
 
     const playerHands = dealCards(deck, dealConfig);
 
-    // Assign new hands only to active players
     activePlayers.forEach((player, index) => {
         player.cards = playerHands[index] || [];
     });
 
-    // Set inactive players' hands to empty
     game.players.forEach(player => {
-        if (!player.isActive) {
-            player.cards = [];
-        }
+        if (!player.isActive) player.cards = [];
     });
-
-    // Set startingPlayerIndex to the next active player
 
     game.currentPlayerIndex = 0;
     game.lastDeclaredHand = null;
@@ -220,7 +187,6 @@ export function handlePlayerLeaveInMemory(gameId: string, playerId: string) {
 
         memPlayer.isActive = false;
 
-        // If the leaving player was the current turn, advance to next active player
         if (wasCurrentTurn) {
             game.currentPlayerIndex = getNextActivePlayerIndex(game, game.currentPlayerIndex);
         }

@@ -65,7 +65,8 @@ export interface Player {
     cards: Card[];
     cardsCount: number;
     isActive: boolean;
-    position: number;
+    position: number; // table position
+    standing?: number | null; // final place in game
     auth0Id: string;
     isHost: boolean;
 }

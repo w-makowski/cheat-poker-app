@@ -18,6 +18,8 @@ const CreateGamePage: React.FC = () => {
         setError(null);
 
         if (!isAuthenticated) {
+            console.log('[CreateGamePage] Not authenticated, redirecting...');
+
             loginWithRedirect();
             return;
         }
@@ -25,10 +27,13 @@ const CreateGamePage: React.FC = () => {
         try {
             setLoading(true);
             const token = await getAccessTokenSilently();
+            console.log('[CreateGamePage] Creating game room:', { name, maxPlayers, deckCount });
             const newRoom = await createGameRoom({ name: name, maxPlayers: maxPlayers, decks: deckCount }, token);
+            console.log('[CreateGamePage] Game room created:', newRoom);
             navigate(`/games/${newRoom.gameId}`);
         } catch (err) {
             console.error(err);
+            console.error('[CreateGamePage] Failed to create game room:', err);
             setError('Failed to create game room');
         } finally {
             setLoading(false);
