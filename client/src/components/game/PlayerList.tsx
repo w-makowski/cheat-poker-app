@@ -7,16 +7,16 @@ interface Player {
     cardsCount: number;
     isActive: boolean;
     isHost: boolean;
+    ready?: boolean; // Add this line
 }
 
 interface PlayerListProps {
     players: Player[];
     currentPlayerId: string;
-    activePlayerId?: string; // <-- Add this prop
+    activePlayerId?: string;
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerId, activePlayerId }) => {
-    // Sort players by position
     const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
     return (
@@ -41,6 +41,11 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerId, activ
                             {player.username}
                             {player.isHost && <span className="host-badge">Host</span>}
                             {player.id === currentPlayerId && <span className="you-badge">You</span>}
+                            {!player.isHost && (
+                                <span style={{ marginLeft: 8 }}>
+                                    {player.ready ? '✅ Ready' : '❌ Not Ready'}
+                                </span>
+                            )}
                         </div>
                         <div className="player-stats">
                             <span className="cards-count">{player.cardsCount} cards</span>

@@ -69,6 +69,7 @@ export interface Player {
     standing?: number | null; // final place in game
     auth0Id: string;
     isHost: boolean;
+    ready?: boolean;
 }
 
 export interface GameState {

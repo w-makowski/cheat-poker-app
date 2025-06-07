@@ -194,3 +194,12 @@ export function handlePlayerLeaveInMemory(gameId: string, playerId: string) {
         game.players = game.players.filter(p => p.id !== playerId);
     }
 }
+
+export function markPlayerReadyInMemory(gameId: string, playerId: string, ready: boolean) {
+    const game = activeGames.get(gameId);
+    if (!game) return false;
+    const player = game.players.find(p => p.id === playerId);
+    if (!player) return false;
+    player.ready = ready;
+    return true;
+}

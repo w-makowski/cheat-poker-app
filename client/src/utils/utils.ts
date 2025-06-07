@@ -5,7 +5,6 @@ export const transformGameResponse = (game: any): GameState => {
         throw new Error('No game data provided');
     }
 
-    // Support both Players (from DB) and players (from server/game logic)
     const playersArray = Array.isArray(game.Players)
         ? game.Players
         : Array.isArray(game.players)
@@ -27,6 +26,7 @@ export const transformGameResponse = (game: any): GameState => {
             position: player.position,
             auth0Id: player.auth0Id ?? player.User?.auth0Id ?? player.auth ?? '',
             isHost: player.isHost,
+            ready: player.ready ?? false, // <-- Add this line
         })),
         startingPlayerIndex: game.startingPlayerIndex ?? 0,
         currentPlayerIndex: game.currentPlayerIndex ?? 0,

@@ -21,7 +21,8 @@ export async function getPlayersByGameId(gameId: number) {
         username: (player as any).User?.username || '',
         auth0Id: (player as any).User?.auth0Id || '',
         cards: [],
-        standing: player.standing ?? null // <-- Add this line
+        standing: player.standing ?? null,
+        ready: player.ready ?? false
     }));
 }
 
@@ -72,4 +73,11 @@ export async function markPlayerAsWinner(playerId: number, gameId: string): Prom
         { where: { id: playerId, gameId } }
     );
     return updatedCount > 0;
+}
+
+export async function updatePlayerReady(playerId: string, ready: boolean) {
+    await Player.update(
+        { ready },
+        { where: { id: playerId } }
+    );
 }

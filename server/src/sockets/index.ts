@@ -5,9 +5,10 @@ import {
   checkPreviousPlayer,
   declareHand, getCheckResultData, handlePlayerLeaveInMemory,
   initializeGame,
+  markPlayerReadyInMemory,
   startNewRound
 } from "../services/gameService";
-import {getPlayersByGameId, removePlayerFromGame} from "../repositories/playerRepository";
+import {getPlayersByGameId, removePlayerFromGame, updatePlayerReady} from "../repositories/playerRepository";
 import {CardRank, PokerHand} from "../types/game";
 import {deleteGame, setPlayerAsHost} from "../repositories/gameRepository";
 
@@ -167,6 +168,50 @@ export function setupSocketHandlers(io: Server) {
         socket.emit('gameError', 'Server error during challenge');
       }
     });
+
+    // Add this inside setupSocketHandlers
+    socket.on('playerReady', async ({ gameId }) => {
+      const players = await getPlayersByGameId(gameId);
+      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      if (player) {
+        player.ready = true;
+        io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
+      }
+    });
+
+    socket.on('playerUnready', async ({ gameId }) => {
+      const players = await getPlayersByGameId(gameId);
+      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      if (player) {
+        player.ready = false;
+        io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
+      }
+    });
+
+    // Add this inside setupSocketHandlers
+
+    socket.on('playerReady', async ({ gameId }) => {
+      console.log(`[SOCKET] playerReady: gameId=${gameId}, socketId=${socket.id}`);
+      const players = await getPlayersByGameId(gameId);
+      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      if (player) {
+        await updatePlayerReady(player.id, true); // DB
+        markPlayerReadyInMemory(gameId, player.id, true); // In-memory
+        io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
+        }
+    });
+
+    socket.on('playerUnready', async ({ gameId }) => {
+        console.log(`[SOCKET] playerUnready: gameId=${gameId}, socketId=${socket.id}`);
+      const players = await getPlayersByGameId(gameId);
+      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      if (player) {
+        await updatePlayerReady(player.id, false); // DB
+        markPlayerReadyInMemory(gameId, player.id, false); // In-memory
+        io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
+      }
+    });
+
 
     socket.on('leaveGame', async ({ gameId }) => {
       console.log(`[SOCKET] leaveGame: gameId=${gameId}, socketId=${socket.id}`);

@@ -49,15 +49,13 @@ const GameRoomPage: React.FC = () => {
             try {
                 setLoading(true);
                 const token = await getAccessTokenSilently();
-                console.log('[CLIENT] Fetching game details for', gameId);
                 const gameDataRaw = await fetchGameDetails(gameId, token);
-                console.log('[CLIENT] Raw game data:', gameDataRaw);
                 const gameData = transformGameResponse(gameDataRaw);
                 setGameState(gameData);
                 setError(null);
             } catch (err) {
+                console.error('Error loading game data:', err);
                 setError('Failed to load game data');
-                console.error('[CLIENT] Failed to load game data:', err);
             } finally {
                 setLoading(false);
             }
@@ -69,11 +67,10 @@ const GameRoomPage: React.FC = () => {
     useEffect(() => {
         if (!socket || !connected || !gameId) return;
 
-        console.log('[CLIENT] Emitting joinGame', { gameId, username: user?.nickname, auth0Id: user?.sub });
         socket.emit('joinGame', { gameId: gameId, username: user?.nickname, auth0Id: user?.sub });
 
         socket.on('gameStateUpdate', (updatedState: GameState) => {
-            console.log('[CLIENT] Received gameStateUpdate:', updatedState);
+            console.log('[GameRoomPage] Received gameStateUpdate:', updatedState);
             const gameData = transformGameResponse(updatedState);
             setGameState(gameData);
         });
@@ -117,8 +114,6 @@ const GameRoomPage: React.FC = () => {
             socket.off('gameError');
             socket.off('gameUpdate');
             socket.off('checkResult');
-
-            //socket.emit('leaveGame', { gameId });
         };
     }, [socket, connected, gameId]);
 
@@ -146,6 +141,26 @@ const GameRoomPage: React.FC = () => {
         }
         navigate('/');
     };
+
+    // --- Readiness logic ---
+    const currentPlayer = gameState?.players.find(
+        (player) => player.auth0Id === user?.sub
+    );
+
+    const isHost = currentPlayer?.isHost || false;
+
+    const isEveryoneReady = gameState
+        ? gameState.players.filter(p => !p.isHost).every(p => p.ready)
+        : false;
+
+    const handleReady = () => {
+        if (socket && connected) socket.emit('playerReady', { gameId });
+    };
+    const handleUnready = () => {
+        if (socket && connected) socket.emit('playerUnready', { gameId });
+    };
+
+    // --- End readiness logic ---
 
     if (loading) {
         return <div className="loading">Loading game...</div>;
@@ -175,10 +190,6 @@ const GameRoomPage: React.FC = () => {
         );
     }
 
-    const currentPlayer = gameState.players.find(
-        (player) => player.auth0Id === user?.sub
-    );
-
     const currentTurnPlayer = gameState.players[(gameState.currentPlayerIndex + gameState.startingPlayerIndex) % gameState.players.length];
 
     const isPlayerTurn =
@@ -187,15 +198,12 @@ const GameRoomPage: React.FC = () => {
         currentTurnPlayer &&
         currentPlayer.auth0Id === currentTurnPlayer.auth0Id;
 
-    const isHost = currentPlayer?.isHost || false;
-
     const getPlayerName = (id: string) => gameState.players.find(p => p.id === id)?.username || 'Unknown';
 
     // Find the active player for the current turn (skip inactive players)
     const getActivePlayerId = () => {
         if (!gameState) return undefined;
         const { players, startingPlayerIndex, currentPlayerIndex } = gameState;
-        // Find the Nth active player, where N = currentPlayerIndex
         let activeIndex = -1;
         for (let i = 0, count = 0; i < players.length; i++) {
             const idx = (startingPlayerIndex + i) % players.length;
@@ -211,8 +219,6 @@ const GameRoomPage: React.FC = () => {
     };
 
     const activePlayerId = getActivePlayerId();
-
-
 
     return (
         <>
@@ -258,11 +264,15 @@ const GameRoomPage: React.FC = () => {
                         {gameState.status === 'waiting' && isHost && (
                             <div className="host-controls">
                                 <h3>Host Controls</h3>
-                                <button className="btn btn-primary" onClick={handleStartGame} disabled={gameState.players.length < 2}>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleStartGame}
+                                    disabled={!isEveryoneReady || gameState.players.length < 2}
+                                >
                                     Start Game
                                 </button>
-                                {gameState.players.length < 2 && (
-                                    <p className="warning">Need at least 2 players to start</p>
+                                {(!isEveryoneReady || gameState.players.length < 2) && (
+                                    <p className="warning">All players must be ready and at least 2 players required.</p>
                                 )}
                             </div>
                         )}
@@ -273,7 +283,20 @@ const GameRoomPage: React.FC = () => {
                             <div className="waiting-room">
                                 <h2>Waiting for players to join...</h2>
                                 <p>Players: {gameState.players.length}/{gameState.maxPlayers}</p>
-                                {isHost ? (<p>You are the host. Start the game when everyone is ready.</p>) : (<p>Waiting for the host to start the game.</p>)}
+                                {!isHost && (
+                                    currentPlayer?.ready ? (
+                                        <button className="btn btn-warning" onClick={handleUnready}>Unready</button>
+                                    ) : (
+                                        <button className="btn btn-success" onClick={handleReady}>Ready</button>
+                                    )
+                                )}
+                                {isHost ? (
+                                    <p>
+                                        You are the host. Start the game when everyone is ready.
+                                    </p>
+                                ) : (
+                                    <p>Waiting for the host to start the game.</p>
+                                )}
                             </div>
                         ) : (
                             <>
