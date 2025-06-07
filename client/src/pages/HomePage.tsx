@@ -75,22 +75,22 @@ const HomePage: React.FC = () => {
                 gameRooms.length === 0 ? (<p>No game rooms available. Create one to get started!</p>) : (
                 <div className="room-list">
                     {gameRooms.map((room) => (
-                    <div key={room.id} className="room-card">
-                        <h3>{room.name}</h3>
-                        <p>Players: {room.currentPlayers}/{room.maxPlayers}</p>
-                        <p>Status: {room.status}</p>
-                        {room.status === 'waiting' && (
-                        <button className="btn btn-secondary" onClick={() => handleJoinRoom(room.id)}>
-                            Join Room
-                        </button>
-                        )}
-                    </div>
+                        <div key={room.id} className="room-card">
+                            <h3>{room.name}</h3>
+                            <p>Players: {room.currentPlayers}/{room.maxPlayers}</p>
+                            <p>Status: {room.status}</p>
+                            {room.status === 'waiting' && (
+                                <button className="btn btn-secondary" onClick={() => handleJoinRoom(room.id)}>
+                                    Join Room
+                                </button>
+                            )}
+                        </div>
                     ))}
                 </div>
                 )}
             </section>
         </div>
-  );
+    );
 }
 
 export default HomePage;

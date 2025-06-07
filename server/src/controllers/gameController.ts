@@ -72,7 +72,16 @@ export async function getWaitingGames(req: Request, res: Response) {
             ]
         });
 
-        res.json(waitingGames);
+        // Map games to include currentPlayers count
+        const gamesWithPlayerCount = waitingGames.map(game => {
+            const plainGame = game.get({ plain: true }) as any; // <-- add 'as any' here
+            return {
+                ...plainGame,
+                currentPlayers: plainGame.Players ? plainGame.Players.length : 0
+            };
+        });
+
+        res.json(gamesWithPlayerCount);
     } catch (error) {
         console.error('Error fetching waiting games:', error);
         res.status(500).json({ error: 'Failed to fetch waiting games' });
