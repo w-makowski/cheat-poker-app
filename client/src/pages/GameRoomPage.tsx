@@ -42,6 +42,7 @@ const GameRoomPage: React.FC = () => {
         winnerId: string | undefined;
     } | null>(null);
     const [wasKicked, setWasKicked] = useState(false);
+    const [wasRoomDeleted, setWasRoomDeleted] = useState(false);
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -112,6 +113,12 @@ const GameRoomPage: React.FC = () => {
         };
         socket.on('kickedFromGame', handleKicked);
 
+        // Handle game deleted by host
+        const handleGameDeleted = () => {
+            setWasRoomDeleted(true);
+        };
+        socket.on('gameDeleted', handleGameDeleted);
+
         return () => {
             socket.off('gameFinished');
             socket.off('gameStateUpdate');
@@ -121,8 +128,9 @@ const GameRoomPage: React.FC = () => {
             socket.off('gameUpdate');
             socket.off('checkResult');
             socket.off('kickedFromGame', handleKicked);
+            socket.off('gameDeleted', handleGameDeleted);
         };
-    }, [socket, connected, gameId]);
+    }, [socket, connected, gameId, navigate]);
 
     const handleStartGame = () => {
         if (socket && connected) {
@@ -145,6 +153,14 @@ const GameRoomPage: React.FC = () => {
     const handleLeaveGame = () => {
         if (socket && connected) {
             socket.emit('leaveGame', { gameId });
+        }
+        navigate('/');
+    };
+
+    // Host cancels (deletes) the room
+    const handleCancelRoom = () => {
+        if (socket && connected) {
+            socket.emit('deleteGame', { gameId });
         }
         navigate('/');
     };
@@ -229,11 +245,27 @@ const GameRoomPage: React.FC = () => {
 
     // Modal for being kicked
     if (wasKicked) {
-        console.log('Player was kicked from the game');
         return (
             <div className="popup-overlay">
                 <div className="popup-content">
                     <h2>You have been kicked by the host</h2>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate('/')}
+                    >
+                        Return to Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Modal for room deleted
+    if (wasRoomDeleted) {
+        return (
+            <div className="popup-overlay">
+                <div className="popup-content">
+                    <h2>The room has been deleted by the host</h2>
                     <button
                         className="btn btn-primary"
                         onClick={() => navigate('/')}
@@ -299,6 +331,13 @@ const GameRoomPage: React.FC = () => {
                                     disabled={!isEveryoneReady || gameState.players.length < 2}
                                 >
                                     Start Game
+                                </button>
+                                <button
+                                    className="btn btn-danger"
+                                    style={{ marginTop: 8 }}
+                                    onClick={handleCancelRoom}
+                                >
+                                    Cancel Room
                                 </button>
                                 {(!isEveryoneReady || gameState.players.length < 2) && (
                                     <p className="warning">All players must be ready and at least 2 players required.</p>

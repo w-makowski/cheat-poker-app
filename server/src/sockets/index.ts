@@ -317,6 +317,16 @@ export function setupSocketHandlers(io: Server) {
       }
     });
 
+    socket.on('deleteGame', async ({ gameId }) => {
+      const players = await getPlayersByGameId(gameId);
+      const host = players.find(p => p.isHost);
+      if (!host || playerIdToSocketId.get(String(host.id)) !== socket.id) return;
+
+      await deleteGame(gameId);
+      activeGames.delete(gameId);
+      io.to(gameId).emit('gameDeleted');
+    });
+
     // Obsługa rozłączenia
     socket.on('disconnect', () => {
       console.log('[SOCKET] disconnect:', socket.id);
