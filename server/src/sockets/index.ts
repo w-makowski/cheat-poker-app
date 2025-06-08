@@ -22,8 +22,8 @@ export function setupSocketHandlers(io: Server) {
     console.log('[SOCKET] User connected:', socket.id);
 
     // Joining game
-    socket.on('joinGame', async ({gameId, username, auth0Id}) => {
-      console.log(`[SOCKET] joinGame: gameId=${gameId}, username=${username}, auth0Id=${auth0Id}`);
+    socket.on('joinGame', async ({gameId, auth0Id}) => {
+      console.log(`[SOCKET] joinGame: gameId=${gameId}, auth0Id=${auth0Id}`);
       socket.join(gameId);
 
       try {

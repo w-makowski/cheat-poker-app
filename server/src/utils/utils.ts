@@ -26,3 +26,21 @@ export async function getUpdatedGameState(gameId: string) {
 
   return game.get({ plain: true });
 }
+
+export async function generateUniqueUsername() {
+  const prefix = 'user';
+  let username: string = prefix;
+  let exists = true;
+
+  while (exists) {
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    username = `${prefix}${randomNumber}`;
+
+    // check if the username already exists in the database
+    const user = await User.findOne({ where: { username } });
+    exists = !!user;
+  }
+
+  return username;
+}
+
