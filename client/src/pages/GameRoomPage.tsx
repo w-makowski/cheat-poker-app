@@ -100,6 +100,7 @@ const GameRoomPage: React.FC = () => {
         });
 
         socket.on('checkResult', (data: CheckResult) => {
+
             setCheckResult(data);
         });
 
@@ -279,14 +280,6 @@ const GameRoomPage: React.FC = () => {
 
     return (
         <>
-            {checkResult && (
-                <CheckResultPopup
-                    checkResult={checkResult}
-                    currentPlayerName={currentPlayer?.username || ''}
-                    checkedPlayerName={getPlayerName(checkResult.checkedPlayerId ?? '')}
-                    onClose={() => setCheckResult(null)}
-                />
-            )}
 
             {gameFinished && (
                 <GameFinishedPopup
@@ -298,7 +291,14 @@ const GameRoomPage: React.FC = () => {
                     }}
                 />
             )}
-
+            {checkResult && (
+                <CheckResultPopup
+                    checkResult={checkResult}
+                    currentPlayerName={currentPlayer?.username || ''}
+                    checkedPlayerName={getPlayerName(checkResult.checkedPlayerId ?? '')}
+                    onClose={() => setCheckResult(null)}
+                />
+            )}
             <div className="game-room-page">
                 <div className="game-header">
                     <h1>{gameState.name}</h1>
