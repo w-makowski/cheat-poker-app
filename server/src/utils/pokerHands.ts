@@ -18,47 +18,47 @@ export function analyzePokerHand(cards: Card[]): CompleteHand {
         const flushStraightHigh = getStraightHighCard(flushSorted);
         if (flushStraightHigh) {
             if (flushStraightHigh === CardRank.ACE) {
-                return { hand: PokerHand.ROYAL_FLUSH, ranks: [CardRank.ACE] };
+                return { hand: PokerHand.ROYAL_FLUSH, ranks: [CardRank.ACE], suit: flushCards[0].suit };
             }
-            return { hand: PokerHand.STRAIGHT_FLUSH, ranks: [flushStraightHigh] };
+            return { hand: PokerHand.STRAIGHT_FLUSH, ranks: [flushStraightHigh], suit: flushCards[0].suit };
         }
     }
 
     const fourKind = findOfAKind(rankCounts, 4);
     if (fourKind) {
-        return { hand: PokerHand.FOUR_OF_A_KIND, ranks: [fourKind, ...kickers(rankCounts, [fourKind])] };
+        return { hand: PokerHand.FOUR_OF_A_KIND, ranks: [fourKind, ...kickers(rankCounts, [fourKind])], suit: null };
     }
 
     const threeKind = findOfAKind(rankCounts, 3);
     const pair = findOfAKind(rankCounts, 2, threeKind ? [threeKind] : []);
     
     if (threeKind && pair) {
-        return { hand: PokerHand.FULL_HOUSE, ranks: [threeKind, pair] }
+        return { hand: PokerHand.FULL_HOUSE, ranks: [threeKind, pair], suit: null };
     }
 
     if (straightHigh) {
-        return { hand: PokerHand.STRAIGHT, ranks: [straightHigh] };
+        return { hand: PokerHand.STRAIGHT, ranks: [straightHigh], suit: null };
     }
 
     if (threeKind) {
-        return { hand: PokerHand.THREE_OF_A_KIND, ranks: [threeKind, ...kickers(rankCounts, [threeKind], 2)] };
+        return { hand: PokerHand.THREE_OF_A_KIND, ranks: [threeKind, ...kickers(rankCounts, [threeKind], 2)], suit: null  };
     }
 
     if (isFlush) {
-        return { hand: PokerHand.FLUSH, ranks: getSortedRanks(cards.filter(c => suitCounts[c.suit] >= 5)).slice(0, 5) };
+        return { hand: PokerHand.FLUSH, ranks: getSortedRanks(cards.filter(c => suitCounts[c.suit] >= 5)).slice(0, 5), suit: Object.keys(suitCounts).find(suit => suitCounts[suit as CardSuit] >= 5) as CardSuit || null };
     }
 
     const firstPair = findOfAKind(rankCounts, 2);
     const secondPair = findOfAKind(rankCounts, 2, firstPair ? [firstPair] : []);
     if (firstPair && secondPair) {
-        return { hand: PokerHand.TWO_PAIR, ranks: [firstPair, secondPair, ...kickers(rankCounts, [firstPair, secondPair], 1)] };
+        return { hand: PokerHand.TWO_PAIR, ranks: [firstPair, secondPair, ...kickers(rankCounts, [firstPair, secondPair], 1)], suit: null  };
     }
 
     if (firstPair) {
-        return { hand: PokerHand.PAIR, ranks: [firstPair, ...kickers(rankCounts, [firstPair], 3)] };
+        return { hand: PokerHand.PAIR, ranks: [firstPair, ...kickers(rankCounts, [firstPair], 3)], suit: null  };
     }
 
-    return { hand: PokerHand.HIGH_CARD, ranks: getSortedRanks(cards).slice(0, 5) };
+    return { hand: PokerHand.HIGH_CARD, ranks: getSortedRanks(cards).slice(0, 5), suit: null  };
 }
 
 // ========== VALIDATION OF DECLARATION ==========

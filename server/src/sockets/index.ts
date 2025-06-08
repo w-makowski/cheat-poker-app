@@ -8,9 +8,9 @@ import {
   markPlayerReadyInMemory,
   startNewRound
 } from "../services/gameService";
-import {getPlayersByGameId, removePlayerFromGame, updatePlayerReady} from "../repositories/playerRepository";
-import {CardRank, PokerHand} from "../types/game";
-import {deleteGame, setPlayerAsHost} from "../repositories/gameRepository";
+import { getPlayersByGameId, removePlayerFromGame, updatePlayerReady } from "../repositories/playerRepository";
+import { CardRank, CardSuit, PokerHand } from "../types/game";
+import { deleteGame, setPlayerAsHost } from "../repositories/gameRepository";
 
 const playerIdToSocketId = new Map<string, string>();
 const leftPlayers = new Set<string>();
@@ -66,7 +66,7 @@ export function setupSocketHandlers(io: Server) {
     // Obsługa rozgrywki - gracz zgłasza swój układ pokerowy
     // server/src/sockets/index.ts
 
-    socket.on('declareHand', async (data: { gameId: string, completeHand: { hand: string, ranks: string[] } }) => {
+    socket.on('declareHand', async (data: { gameId: string, completeHand: { hand: string, ranks: string[], suit: string | null } }) => {
       console.log(`[SOCKET] declareHand:`, data);
       try {
         // Find the player by socket ID
@@ -82,7 +82,8 @@ export function setupSocketHandlers(io: Server) {
         // Convert hand and ranks to correct types
         const completeHand = {
           hand: data.completeHand.hand as PokerHand,
-          ranks: data.completeHand.ranks.map(r => r as CardRank)
+          ranks: data.completeHand.ranks.map(r => r as CardRank),
+          suit: data.completeHand.suit ? data.completeHand.suit as CardSuit : null
         };
 
         const success = declareHand(data.gameId, player.id, completeHand);

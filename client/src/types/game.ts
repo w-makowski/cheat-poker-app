@@ -30,15 +30,16 @@ export interface Card {
 export interface CompleteHand {
     hand: PokerHand;
     ranks: CardRank[];  // from most important to least
+    suit: CardSuit | null; // only for flushes, straight flushes and royal flushes
 }
 
 export enum PokerHand {
     HIGH_CARD = 'HIGH_CARD',
     PAIR = 'PAIR',
     TWO_PAIR = 'TWO_PAIR',
+    FLUSH = 'FLUSH',
     THREE_OF_A_KIND = 'THREE_OF_A_KIND',
     STRAIGHT = 'STRAIGHT',
-    FLUSH = 'FLUSH',
     FULL_HOUSE = 'FULL_HOUSE',
     FOUR_OF_A_KIND = 'FOUR_OF_A_KIND',
     STRAIGHT_FLUSH = 'STRAIGHT_FLUSH',
@@ -83,9 +84,6 @@ export interface GameControlsProps {
     onDeclareHand: (completeHand: CompleteHand) => void;
     onChallengeDeclaration: () => void;
 }
-
-
-// Add this to client/src/types/game.ts
 
 export const RANK_VALUES: Record<CardRank, number> = {
     [CardRank.TWO]: 2,
@@ -136,4 +134,42 @@ export function compareHands(a: CompleteHand, b: CompleteHand): -1 | 0 | 1 {
     }
 
     return 0;
+}
+
+export const RANKS: CardRank[] = [
+    CardRank.TWO, CardRank.THREE, CardRank.FOUR, CardRank.FIVE, CardRank.SIX,
+    CardRank.SEVEN, CardRank.EIGHT, CardRank.NINE, CardRank.TEN,
+    CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.ACE
+];
+
+export const SUITS: CardSuit[] = [
+    CardSuit.HEARTS, CardSuit.DIAMONDS, CardSuit.CLUBS, CardSuit.SPADES
+];
+
+export const HANDS_REQUIRING_RANK = [
+    PokerHand.HIGH_CARD,
+    PokerHand.PAIR,
+    PokerHand.THREE_OF_A_KIND,
+    PokerHand.FOUR_OF_A_KIND,
+    PokerHand.TWO_PAIR,
+    PokerHand.FULL_HOUSE,
+    PokerHand.STRAIGHT,
+    PokerHand.STRAIGHT_FLUSH,
+];
+
+export const HANDS_REQUIRING_2_RANKS = [
+    PokerHand.TWO_PAIR,
+    PokerHand.FULL_HOUSE,
+];
+
+export const HANDS_REQUIRING_SUIT = [
+    PokerHand.FLUSH,
+    PokerHand.STRAIGHT_FLUSH,
+    PokerHand.ROYAL_FLUSH
+]
+
+export interface GameBoardProps {
+    gameState: GameState;
+    playerCards: Card[] | null;
+    isPlayerTurn: boolean;
 }

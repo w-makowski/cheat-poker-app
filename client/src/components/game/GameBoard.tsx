@@ -1,13 +1,9 @@
 import React from 'react';
 import CardSprite from './CardSprite';
 
-import type { GameState, Card } from '../../types/game';
+import type { GameBoardProps } from '../../types/game';
+import { HANDS_REQUIRING_RANK, HANDS_REQUIRING_SUIT } from '../../types/game';
 
-interface GameBoardProps {
-    gameState: GameState;
-    playerCards: Card[] | null;
-    isPlayerTurn: boolean;
-}
 
 const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerTurn }) => {
     return (
@@ -20,9 +16,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
                         <p>
                             <strong>Hand:</strong>
                             {gameState.lastDeclaredHand.declaredHand.hand.replace(/_/g, ' ')}
-                            {gameState.lastDeclaredHand.declaredHand.ranks && gameState.lastDeclaredHand.declaredHand.ranks.length > 0 && (
-                                <> ({gameState.lastDeclaredHand.declaredHand.ranks.join(', ')})</>
-                            )}
+                            {HANDS_REQUIRING_SUIT.includes(gameState.lastDeclaredHand.declaredHand.hand) && gameState.lastDeclaredHand.declaredHand.suit && (
+                                    <> ({gameState.lastDeclaredHand.declaredHand.suit})</>
+                                )}
+                                {gameState.lastDeclaredHand.declaredHand.ranks &&
+                                    HANDS_REQUIRING_RANK.includes(gameState.lastDeclaredHand.declaredHand.hand) &&
+                                    gameState.lastDeclaredHand.declaredHand.ranks.length > 0 && (
+                                        <> ({gameState.lastDeclaredHand.declaredHand.ranks.join(', ')})</>
+                                    )
+                            }
                         </p>
                     </div>
                 )}

@@ -1,62 +1,59 @@
 import React, { useState } from 'react';
 import type { GameControlsProps, CompleteHand } from '../../types/game';
-import { PokerHand, CardRank, compareHands } from '../../types/game';
+import { PokerHand, CardRank, CardSuit, compareHands,
+     RANKS, SUITS, HANDS_REQUIRING_RANK, HANDS_REQUIRING_SUIT, HANDS_REQUIRING_2_RANKS } from '../../types/game';
 
-const RANKS: CardRank[] = [
-    CardRank.TWO, CardRank.THREE, CardRank.FOUR, CardRank.FIVE, CardRank.SIX,
-    CardRank.SEVEN, CardRank.EIGHT, CardRank.NINE, CardRank.TEN,
-    CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.ACE
-];
 
-const HANDS_REQUIRING_RANK = [
-    PokerHand.HIGH_CARD,
-    PokerHand.PAIR,
-    PokerHand.THREE_OF_A_KIND,
-    PokerHand.FOUR_OF_A_KIND,
-    PokerHand.TWO_PAIR
-];
-
-const GameControls: React.FC<GameControlsProps> = ({
-                                                       isPlayerTurn,
-                                                       lastDeclaredHand,
-                                                       onDeclareHand,
-                                                       onChallengeDeclaration
-                                                   }) => {
+const GameControls: React.FC<GameControlsProps> = ({isPlayerTurn, lastDeclaredHand, onDeclareHand, onChallengeDeclaration}) => {
     const [selectedHand, setSelectedHand] = useState<PokerHand | ''>('');
     const [selectedRank, setSelectedRank] = useState<CardRank>(CardRank.ACE);
     const [selectedRank2, setSelectedRank2] = useState<CardRank>(CardRank.KING);
+    const [selectedSuit, setSelectedSuit] = useState<CardSuit | null>(null);
 
     const allHands = Object.values(PokerHand);
 
     const showRankSelector = selectedHand && HANDS_REQUIRING_RANK.includes(selectedHand as PokerHand);
+    const showSuitSelector = selectedHand && HANDS_REQUIRING_SUIT.includes(selectedHand as PokerHand);
 
     // Check if the declaration is valid (strictly higher)
     const isDeclarationValid = () => {
         if (!selectedHand) return false;
         if (!lastDeclaredHand) return true;
+
+        if (selectedHand === PokerHand.STRAIGHT || selectedHand === PokerHand.STRAIGHT_FLUSH) {
+            if (RANKS.indexOf(selectedRank) < 4) return false;
+        }
+
         let ranks: CardRank[] = [];
-        if (selectedHand === PokerHand.TWO_PAIR) {
+        if (HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand)) {
             if (selectedRank === selectedRank2) return false;
             ranks = [selectedRank, selectedRank2];
         } else if (showRankSelector) {
             ranks = [selectedRank];
+        } else {
+            ranks = [CardRank.TWO]; // fallback for hands not needing rank
         }
-        const newHand = { hand: selectedHand as PokerHand, ranks };
+    
+        const newHand = { hand: selectedHand as PokerHand, ranks, suit: selectedSuit || null } as CompleteHand;
         return compareHands(newHand, lastDeclaredHand.declaredHand) > 0;
     };
 
     const handleDeclare = () => {
         if (!selectedHand) return;
         let ranks: CardRank[] = [];
-        if (selectedHand === PokerHand.TWO_PAIR) {
+        if (HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand)) {
             if (selectedRank === selectedRank2) return;
             ranks = [selectedRank, selectedRank2];
         } else if (showRankSelector) {
             ranks = [selectedRank];
+        } else {
+            ranks = [CardRank.TWO];
         }
+
         const completeHand: CompleteHand = {
             hand: selectedHand as PokerHand,
-            ranks
+            ranks,
+            suit: selectedSuit
         };
         onDeclareHand(completeHand);
         setSelectedHand('');
@@ -100,7 +97,7 @@ const GameControls: React.FC<GameControlsProps> = ({
                                         </option>
                                     ))}
                                 </select>
-                                {selectedHand === PokerHand.TWO_PAIR && (
+                                {HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand) && (
                                     <select
                                         value={selectedRank2}
                                         onChange={e => setSelectedRank2(e.target.value as CardRank)}
@@ -114,12 +111,23 @@ const GameControls: React.FC<GameControlsProps> = ({
                                 )}
                             </>
                         )}
+                        {showSuitSelector && (
+                            <select
+                                value={selectedSuit || ''}
+                                onChange={e => setSelectedSuit(e.target.value as CardSuit)}
+                            >
+                                <option value="">Select a suit</option>
+                                {SUITS.map(suit => (
+                                    <option key={suit} value={suit}>{suit}</option>
+                                ))}
+                            </select>
+                        )}
                         <button
                             className="btn btn-primary"
                             onClick={handleDeclare}
                             disabled={
                                 !selectedHand ||
-                                (selectedHand === PokerHand.TWO_PAIR && selectedRank === selectedRank2) ||
+                                (HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand) && selectedRank === selectedRank2) ||
                                 !isDeclarationValid()
                             }
                         >
@@ -133,9 +141,15 @@ const GameControls: React.FC<GameControlsProps> = ({
                             Current declaration:{' '}
                             <strong>
                                 {lastDeclaredHand.declaredHand.hand.replace(/_/g, ' ')}
-                                {lastDeclaredHand.declaredHand.ranks && lastDeclaredHand.declaredHand.ranks.length > 0 && (
-                                    <> ({lastDeclaredHand.declaredHand.ranks.join(', ')})</>
+                                {HANDS_REQUIRING_SUIT.includes(lastDeclaredHand.declaredHand.hand) && lastDeclaredHand.declaredHand.suit && (
+                                    <> ({lastDeclaredHand.declaredHand.suit})</>
                                 )}
+                                {lastDeclaredHand.declaredHand.ranks &&
+                                    HANDS_REQUIRING_RANK.includes(lastDeclaredHand.declaredHand.hand) &&
+                                    lastDeclaredHand.declaredHand.ranks.length > 0 && (
+                                        <> ({lastDeclaredHand.declaredHand.ranks.join(', ')})</>
+                                    )
+                                }
                             </strong>
                         </p>
                         <button className="btn btn-danger" onClick={onChallengeDeclaration}>
@@ -166,7 +180,7 @@ const GameControls: React.FC<GameControlsProps> = ({
                                     </option>
                                 ))}
                             </select>
-                            {selectedHand === PokerHand.TWO_PAIR && (
+                            {HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand) && (
                                 <select
                                     value={selectedRank2}
                                     onChange={e => setSelectedRank2(e.target.value as CardRank)}
@@ -180,12 +194,23 @@ const GameControls: React.FC<GameControlsProps> = ({
                             )}
                         </>
                     )}
+                    {showSuitSelector && (
+                        <select
+                            value={selectedSuit || ''}
+                            onChange={e => setSelectedSuit(e.target.value as CardSuit)}
+                        >
+                            <option value="">Select a suit</option>
+                            {SUITS.map(suit => (
+                                <option key={suit} value={suit}>{suit}</option>
+                            ))}
+                        </select>
+                    )}
                     <button
                         className="btn btn-primary"
                         onClick={handleDeclare}
                         disabled={
                             !selectedHand ||
-                            (selectedHand === PokerHand.TWO_PAIR && selectedRank === selectedRank2)
+                            (HANDS_REQUIRING_2_RANKS.includes(selectedHand as PokerHand) && selectedRank === selectedRank2)
                         }
                     >
                         Declare

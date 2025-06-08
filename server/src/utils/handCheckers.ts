@@ -38,12 +38,9 @@ export function hasFullHouse(cards: Card[], [r1, r2]: CardRank[]): boolean {
     return counts[r1] >= 3 && counts[r2] >= 2;
 }
 
-export function hasFlush(cards: Card[], ranks: CardRank[]): boolean {
-    const suits = countSuits(cards);
-    return Object.values(suits).some(cardsInSuit => {
-      const suitRanks = cardsInSuit.map(c => c.rank);
-      return ranks.every(r => suitRanks.includes(r));
-    });
+export function hasFlush(cards: Card[], suit: CardSuit): boolean {
+    const suitedCards = cards.filter(c => c.suit === suit);
+    return suitedCards.length >= 5;
 }
   
 export function hasStraight(cards: Card[], highestRank: CardRank): boolean {
@@ -55,18 +52,14 @@ export function hasStraight(cards: Card[], highestRank: CardRank): boolean {
     return neededRanks.every(r => cardRanksSet.has(r));
 }
 
-export function hasStraightFlush(cards: Card[], highestRank: CardRank): boolean {
-    const suits = countSuits(cards);
-    return Object.values(suits).some(cardsInSuit =>
-        hasStraight(cardsInSuit, highestRank)
-    );
+export function hasStraightFlush(cards: Card[], highestRank: CardRank, suit: CardSuit): boolean {
+    const suitedCards = cards.filter(c => c.suit === suit);
+    return hasStraight(suitedCards, highestRank);
 }
-  
-export function hasRoyalFlush(cards: Card[]): boolean {
+
+export function hasRoyalFlush(cards: Card[], suit: CardSuit): boolean {
     const required: CardRank[] = [CardRank.TEN, CardRank.JACK, CardRank.QUEEN, CardRank.KING, CardRank.ACE];
-    const suits = countSuits(cards);
-    return Object.values(suits).some(cardsInSuit => {
-        const ranks = cardsInSuit.map(c => c.rank);
-        return required.every(r => ranks.includes(r));
-    });
+    const suitedCards = cards.filter(c => c.suit === suit);
+    const suitedRanks = suitedCards.map(c => c.rank);
+    return required.every(rank => suitedRanks.includes(rank));
 }

@@ -25,13 +25,13 @@ export function validateDeclaredHand(cards: Card[], declaredHand: CompleteHand):
         case PokerHand.FULL_HOUSE:
             return hasFullHouse(cards, declaredHand.ranks);
         case PokerHand.FLUSH:
-            return hasFlush(cards, declaredHand.ranks);
+            return hasFlush(cards, declaredHand.suit!);
         case PokerHand.STRAIGHT:
             return hasStraight(cards, declaredHand.ranks[0]);
         case PokerHand.STRAIGHT_FLUSH:
-            return hasStraightFlush(cards, declaredHand.ranks[0]);
+            return hasStraightFlush(cards, declaredHand.ranks[0], declaredHand.suit!);
         case PokerHand.ROYAL_FLUSH:
-            return hasRoyalFlush(cards);
+            return hasRoyalFlush(cards, declaredHand.suit!);
         default:
             return false;
     }

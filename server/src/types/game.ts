@@ -40,6 +40,7 @@ export interface Card {
 export interface CompleteHand {
     hand: PokerHand;
     ranks: CardRank[];  // from most important to least
+    suit: CardSuit | null; // only for flushes, straight flushes and royal flushes
 }
 
 export type DealConfig = {
