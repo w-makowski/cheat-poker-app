@@ -348,9 +348,10 @@ const GameRoomPage: React.FC = () => {
                             currentPlayerId={currentPlayer?.id || ''}
                             activePlayerId={activePlayerId}
                             isHost={isHost}
-                            onKickPlayer={(playerId) => {
+                            onKickPlayer={gameState.status !== 'active' ? (playerId) => {
                                 if (socket && connected) socket.emit('kickPlayer', { gameId, playerId });
-                            }}
+                            } : undefined}
+                            gameStatus={gameState.status}
                         />
 
                         {gameState.status === 'active' && (<GameHistory history={historyLog} />)}
