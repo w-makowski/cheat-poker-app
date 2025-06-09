@@ -16,7 +16,6 @@ interface PlayerListProps {
     activePlayerId?: string;
     isHost?: boolean;
     onKickPlayer?: (playerId: string) => void;
-    gameStatus?: string;
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({
@@ -24,8 +23,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                                                    currentPlayerId,
                                                    activePlayerId,
                                                    isHost,
-                                                   onKickPlayer,
-                                                   gameStatus,
+                                                   onKickPlayer
                                                }) => {
     const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
@@ -36,12 +34,11 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 {sortedPlayers.map((player) => (
                     <div
                         key={player.id}
-                        className={
-                            `player-item` +
-                            (player.id === currentPlayerId ? ' current-player' : '') +
-                            (player.id === activePlayerId ? ' active-turn' : '') +
-                            (!player.isActive ? ' inactive' : '')
-                        }
+                        className={`player-item
+                            ${player.id === currentPlayerId ? 'current-player' : ''}
+                            ${player.id === activePlayerId ? 'active-turn' : ''}
+                            ${!player.isActive ? 'inactive' : ''}
+                        `}
                         style={{
                             opacity: !player.isActive ? 0.5 : 1,
                             color: !player.isActive ? '#aaa' : player.id === activePlayerId ? '#2196f3' : undefined,
@@ -57,7 +54,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                                     {player.ready ? '✅ Ready' : '❌ Not Ready'}
                                 </span>
                             )}
-                            {isHost && onKickPlayer && !player.isHost && player.id !== currentPlayerId && gameStatus !== 'active' && (
+                            {isHost && onKickPlayer && !player.isHost && player.id !== currentPlayerId && (
                                 <button
                                     className="kick-btn"
                                     onClick={() => onKickPlayer(player.id)}
