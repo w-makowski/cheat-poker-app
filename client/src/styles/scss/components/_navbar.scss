@@ -26,12 +26,34 @@
       gap: $spacing-lg;
       
       a {
+        // color: rgba($light-text, 0.8);
+        // text-decoration: none;
+        // @include transition(color);
         color: rgba($light-text, 0.8);
         text-decoration: none;
         @include transition(color);
+        padding: $spacing-sm $spacing-md;
+        border-radius: $border-radius-sm;
+        position: relative;
         
         &:hover, &.active {
           color: $light-text;
+          background-color: rgba($light-text, 0.1);
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background-color: $secondary-color;
+          @include transition(width, left);
+        }
+  
+        &:hover::after, &.active::after {
+          width: 80%;
+          left: 10%;
         }
       }
     }
@@ -44,11 +66,5 @@
     
     @include respond-to(sm) {
       padding: $spacing-md $spacing-xl;
-    }
-    
-    @media (max-width: #{$breakpoint-md - 1px}) {
-      .navbar-links {
-        display: none;
-      }
     }
   }

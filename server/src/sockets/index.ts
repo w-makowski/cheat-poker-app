@@ -96,6 +96,7 @@ export function setupSocketHandlers(io: Server) {
         // Fetch and emit updated game state
         const updatedGameState = await getUpdatedGameState(data.gameId);
         io.to(data.gameId).emit('gameStateUpdate', updatedGameState);
+        io.to(data.gameId).emit('updateDeclarationHistory', updatedGameState)
       } catch (err) {
         socket.emit('gameError', 'Server error during hand declaration');
       }

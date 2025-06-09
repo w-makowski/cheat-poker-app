@@ -8,8 +8,10 @@ import type { GameState, Card, CompleteHand } from '../types/game';
 import GameBoard from '../components/game/GameBoard';
 import PlayerList from '../components/game/PlayerList';
 import GameControls from '../components/game/GameControls';
-import CheckResultPopup from "../components/common/CheckResultPopup.tsx";
-import GameFinishedPopup from "../components/common/GameFinishedPopup.tsx";
+import CheckResultPopup from "../components/common/CheckResultPopup";
+import GameFinishedPopup from "../components/common/GameFinishedPopup";
+import GameHistory from '../components/game/GameHistory';
+import { HANDS_REQUIRING_RANK, HANDS_REQUIRING_SUIT } from '../types/game';
 
 interface CheckResultPlayer {
     id: string;
@@ -23,6 +25,7 @@ interface CheckResult {
         ranks?: string[];
     } | null;
     checkedPlayerId: string | null;
+    nextRoundPenaltyPlayerId: string | null;
     isBluffing: boolean;
     players: CheckResultPlayer[];
 }
@@ -43,6 +46,8 @@ const GameRoomPage: React.FC = () => {
     } | null>(null);
     const [wasKicked, setWasKicked] = useState(false);
     const [wasRoomDeleted, setWasRoomDeleted] = useState(false);
+    const [historyLog, setHistoryLog] = useState<string[]>([]);
+
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -73,12 +78,15 @@ const GameRoomPage: React.FC = () => {
 
         socket.on('gameStateUpdate', (updatedState: GameState) => {
             const gameData = transformGameResponse(updatedState);
+            console.log('Game state update received:', gameData);
             setGameState(gameData);
+            console.log('game state: ', gameState)
         });
 
         socket.on('gameStarted', (gameStateRaw) => {
             const gameData = transformGameResponse(gameStateRaw);
             setGameState(gameData);
+            addHistoryEntry('First round started');
         });
 
         socket.on('playerCards', (cards: Card[]) => {
@@ -100,8 +108,26 @@ const GameRoomPage: React.FC = () => {
         });
 
         socket.on('checkResult', (data: CheckResult) => {
-
+            addHistoryEntry('---');
+            addHistoryEntry('New round started');
             setCheckResult(data);
+        });
+
+        socket.on('updateDeclarationHistory', (updatedState: GameState) => {
+            const gameData = transformGameResponse(updatedState);
+            if (gameData.lastDeclaredHand) {
+                console.log('Last declared hand:', gameData.lastDeclaredHand);
+                const playerName = gameData.players.find(p => p.id === gameData.lastDeclaredHand!.playerId)?.username || 'Unknown'
+                const handName = gameData.lastDeclaredHand.declaredHand.hand;
+                const ranks = gameData.lastDeclaredHand.declaredHand.ranks?.join(', ');
+                const suit = gameData.lastDeclaredHand.declaredHand.suit;
+    
+                let declaration = `${playerName}: ${handName}`;
+                if (HANDS_REQUIRING_RANK.includes(handName) && ranks) declaration += ` (${ranks})`;
+                if (HANDS_REQUIRING_SUIT.includes(handName) && suit) declaration += ` (${suit})`;
+    
+                addHistoryEntry(declaration);
+            }
         });
 
         socket.on('gameFinished', (data) => {
@@ -128,10 +154,15 @@ const GameRoomPage: React.FC = () => {
             socket.off('gameError');
             socket.off('gameUpdate');
             socket.off('checkResult');
+            socket.off('updateDeclarationHistory');
             socket.off('kickedFromGame', handleKicked);
             socket.off('gameDeleted', handleGameDeleted);
         };
     }, [socket, connected, gameId, navigate]);
+
+    const addHistoryEntry = (entry: string) => {
+        setHistoryLog(prev => [...prev, entry]);
+    };
 
     const handleStartGame = () => {
         if (socket && connected) {
@@ -321,6 +352,8 @@ const GameRoomPage: React.FC = () => {
                                 if (socket && connected) socket.emit('kickPlayer', { gameId, playerId });
                             }}
                         />
+
+                        {gameState.status === 'active' && (<GameHistory history={historyLog} />)}
 
                         {gameState.status === 'waiting' && isHost && (
                             <div className="host-controls">

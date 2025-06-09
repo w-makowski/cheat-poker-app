@@ -24,28 +24,28 @@ const ProfilePage: React.FC = () => {
     const [updateMsg, setUpdateMsg] = useState('');
 
     const handleUsernameChange = async () => {
-    try {
-        const token = await getAccessTokenSilently();
-        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/users/username`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ username: newUsername })
-        });
+        try {
+            const token = await getAccessTokenSilently();
+            const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/users/username`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ username: newUsername })
+            });
 
-        if (res.status === 200) {
-        const data = await res.json();
-        setProfile((prev) => prev ? { ...prev, username: data.username } : prev);
-        setUpdateMsg('Username updated!');
-        } else {
-        const err = await res.json();
-        setUpdateMsg(err.error || 'Something went wrong');
+            if (res.status === 200) {
+            const data = await res.json();
+            setProfile((prev) => prev ? { ...prev, username: data.username } : prev);
+            setUpdateMsg('Username updated!');
+            } else {
+            const err = await res.json();
+            setUpdateMsg(err.error || 'Something went wrong');
+            }
+        } catch (err) {
+            setUpdateMsg('Failed to update username');
         }
-    } catch (err) {
-        setUpdateMsg('Failed to update username');
-    }
     };
 
 

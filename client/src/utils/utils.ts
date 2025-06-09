@@ -6,7 +6,6 @@ export const transformGameResponse = (game: any): GameState => {
     }
 
     const playersArray = Array.isArray(game.Players) ? game.Players : Array.isArray(game.players) ? game.players : [];
-
     return {
         id: game.id,
         name: game.name,

@@ -1,0 +1,267 @@
+.profile-page {
+    @include container;
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
+    min-height: 100vh;
+    background-color: $background-color;
+  
+    h1 {
+      @include heading('xl');
+      text-align: center;
+      color: $primary-color;
+      margin-bottom: $spacing-xl;
+    }
+  
+    .loading {
+      @include flex-center;
+      height: 50vh;
+      font-size: 1.2rem;
+      color: $text-color;
+    }
+  }
+  
+  .profile-card {
+    @include card;
+    max-width: 600px;
+    margin: 0 auto;
+    @include transition(transform, box-shadow);
+  
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $box-shadow-md;
+    }
+  
+    @include respond-to(sm) {
+      padding: $spacing-xxl;
+    }
+  }
+  
+  .profile-header {
+    @include flex(column, center, center);
+    margin-bottom: $spacing-xl;
+    padding-bottom: $spacing-lg;
+    border-bottom: 2px solid $border-color;
+  
+    @include respond-to(md) {
+      @include flex(row, flex-start, center);
+      text-align: left;
+    }
+  
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid $secondary-color;
+      margin-bottom: $spacing-md;
+      object-fit: cover;
+      @include transition(transform);
+  
+      &:hover {
+        transform: scale(1.05);
+      }
+  
+      @include respond-to(md) {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 0;
+        margin-right: $spacing-lg;
+      }
+    }
+  
+    .profile-info {
+      text-align: center;
+      flex: 1;
+  
+      @include respond-to(md) {
+        text-align: left;
+      }
+  
+      h2 {
+        @include heading('lg');
+        color: $primary-color;
+        margin-bottom: $spacing-sm;
+      }
+  
+      p {
+        color: $profile-email-color;
+        font-size: 0.95rem;
+        margin-bottom: $spacing-md;
+        font-style: italic;
+      }
+    }
+  }
+  
+  .username-update {
+    @include flex(column, flex-start, stretch);
+    gap: $spacing-sm;
+    margin: $spacing-md 0;
+    padding: $spacing-md;
+    background-color: $profile-update-bg;
+    border-radius: $border-radius-md;
+    border-left: 4px solid $secondary-color;
+  
+    @include respond-to(sm) {
+      @include flex(row, flex-start, center);
+      gap: $spacing-md;
+    }
+  
+    input {
+      padding: $spacing-sm $spacing-md;
+      border: 2px solid $border-color;
+      border-radius: $border-radius-sm;
+      font-size: 0.9rem;
+      @include transition(border-color, box-shadow);
+      flex: 1;
+  
+      &:focus {
+        outline: none;
+        border-color: $secondary-color;
+        box-shadow: 0 0 0 3px rgba($secondary-color, 0.1);
+      }
+  
+      &::placeholder {
+        color: lighten($text-color, 30%);
+      }
+    }
+  
+    button {
+      @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+      padding: $spacing-sm $spacing-md;
+      border: none;
+      border-radius: $border-radius-sm;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      @include transition(all);
+      white-space: nowrap;
+  
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  
+    p {
+      margin: 0 !important;
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $border-radius-sm;
+      font-size: 0.85rem;
+      font-style: normal !important;
+      text-align: center;
+      animation: fadeInMessage 0.3s ease;
+  
+      @include respond-to(sm) {
+        text-align: left;
+      }
+  
+      // Success message styling
+      &:not(:empty) {
+        background-color: rgba($success-color, 0.1);
+        color: darken($success-color, 10%);
+        border: 1px solid rgba($success-color, 0.3);
+      }
+    }
+  }
+  
+  .profile-stats {
+    h3 {
+      @include heading('md');
+      color: $primary-color;
+      margin-bottom: $spacing-lg;
+      text-align: center;
+      position: relative;
+  
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -$spacing-sm;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, $secondary-color, $accent-color);
+        border-radius: 2px;
+      }
+    }
+  }
+  
+  .stats-grid {
+    @include flex(column, flex-start, stretch);
+    gap: $spacing-md;
+  
+    @include respond-to(sm) {
+      @include flex(row, space-around, center);
+      gap: $spacing-lg;
+    }
+  }
+  
+  .stat-item {
+    @include flex(column, center, center);
+    padding: $spacing-lg;
+    background: linear-gradient(135deg, rgba($secondary-color, 0.05), rgba($accent-color, 0.05));
+    border-radius: $border-radius-lg;
+    border: 1px solid rgba($secondary-color, 0.1);
+    @include transition(transform, box-shadow);
+    text-align: center;
+  
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: $box-shadow-sm;
+    }
+  
+    @include respond-to(sm) {
+      flex: 1;
+      min-width: 120px;
+    }
+  
+    .stat-label {
+      font-size: 0.9rem;
+      color: lighten($text-color, 20%);
+      font-weight: 500;
+      margin-bottom: $spacing-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  
+    .stat-value {
+      @include heading('lg');
+      color: $primary-color;
+      font-weight: bold;
+      
+      // Special styling for win rate
+      &:last-child {
+        background: linear-gradient(135deg, $secondary-color, $accent-color);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+  
+  // Animations
+  @keyframes fadeInMessage {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  // Responsive improvements
+@include respond-to(sm) {
+    .profile-page {
+      padding-top: $spacing-xxl;
+    }
+}
+  
+@include respond-to(lg) {
+    .profile-card {
+      max-width: 700px;
+    }
+    
+    .stats-grid {
+      gap: $spacing-xl;
+    }
+}

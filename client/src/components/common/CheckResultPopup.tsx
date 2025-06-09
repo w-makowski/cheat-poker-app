@@ -41,7 +41,7 @@ const CheckResultPopup: React.FC<Props> = ({
                     : ''}
             </p>
             <p>
-                Result: {checkResult.isBluffing ? 'False, ' : 'True, '}
+                Result: {checkResult.isBluffing ? 'False' : 'True'}<br></br>
                 {checkResult.isBluffing
                     ? `${checkedPlayerName} gets a penalty card`
                     : `${currentPlayerName} gets a penalty card`}
