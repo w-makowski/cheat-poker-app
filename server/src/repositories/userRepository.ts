@@ -11,7 +11,7 @@ export async function getUserProfile(auth0Id: string) {
             Player.count({ where: { userId: user.id } }),
             Player.count({ where: { userId: user.id, standing: 1 } })
         ]);
-        return { id: user.id, username: user.username, email: user.email, gamesPlayed, gamesWon };
+        return { id: user.id, username: user.username, email: user.email, gamesPlayed, gamesWon, isBanned: user.accountStatus === 'banned' };
     }
 }
 

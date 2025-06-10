@@ -5,7 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 
 const ProfilePage: React.FC = () => {
     const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0();
-    const [profile, setProfile] = useState<{id:number, username:string, email:string, gamesPlayed:number, gamesWon:number} | null>(null);
+    const [profile, setProfile] = useState<{id:number, username:string, email:string, gamesPlayed:number, gamesWon:number, isBanned:boolean} | null>(null);
 
     useEffect(() => {
         if (!isAuthenticated) return;

@@ -42,7 +42,8 @@ export const getMeHandler = async (req: Request, res: Response, next: NextFuncti
         username: userProfile.username,
         email: userProfile.email,
         gamesPlayed: userProfile.gamesPlayed,
-        gamesWon: userProfile.gamesWon
+        gamesWon: userProfile.gamesWon,
+        isBanned: userProfile.isBanned
       });
     } catch (err) {
       console.error('User fetch error:', err);

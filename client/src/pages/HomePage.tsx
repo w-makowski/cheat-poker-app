@@ -9,7 +9,8 @@ const HomePage: React.FC = () => {
     const [gameRooms, setGameRooms] = useState<GameRoom[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { isAuthenticated, getAccessTokenSilently, loginWithRedirect } = useAuth0();
+    const { isAuthenticated, getAccessTokenSilently, loginWithRedirect, logout } = useAuth0();
+    const [isBanned, setIsBanned] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -36,6 +37,19 @@ const HomePage: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        (async () => {
+            const token = await getAccessTokenSilently();
+            const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/users/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            console.log('res:', res);
+            const data = await res.json();
+            setIsBanned(data.isBanned);
+        })();
+    }, [isAuthenticated]);
+
     const handleJoinRoom = async (roomId: string) => {
         if (!isAuthenticated) {
             loginWithRedirect();
@@ -51,6 +65,26 @@ const HomePage: React.FC = () => {
             console.error(err);
         }
     };
+
+    const handleLogout = () => {
+        logout({ logoutParams: { returnTo: window.location.origin } });
+    };
+
+    if (isBanned) {
+        return (
+            <div className="popup-overlay">
+                <div className="popup-content">
+                    <h2>You have been banned by the admin</h2>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => handleLogout()}
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="home-page">
