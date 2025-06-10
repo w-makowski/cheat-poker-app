@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import NotAuthorizedPage from './NotAuthorizedPage';
+import type {Game, Player } from '../types/game';
 
-interface Player {
-    id: string;
-    username: string;
-    banned?: boolean;
-}
-
-interface Game {
-    id: string;
-    name: string;
-    players: string[];
-}
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -21,19 +12,24 @@ const AdminPage: React.FC = () => {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [unauthorized, setUnauthorized] = useState(false);
 
     const fetchPlayers = async (token: string) => {
         try {
             const res = await fetch(`${API_URL}/api/admin/players`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.status === 403) {
+                setUnauthorized(true);
+                return;
+            }
             if (!res.ok) {
                 setError('Failed to fetch players');
                 return;
             }
             const data = await res.json();
             setPlayers(data);
-        } catch (e) {
+        } catch {
             setError('Failed to fetch players');
         }
     };
@@ -43,13 +39,17 @@ const AdminPage: React.FC = () => {
             const res = await fetch(`${API_URL}/api/admin/games`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.status === 403) {
+                setUnauthorized(true);
+                return;
+            }
             if (!res.ok) {
                 setError('Failed to fetch games');
                 return;
             }
             const data = await res.json();
             setGames(data);
-        } catch (e) {
+        } catch {
             setError('Failed to fetch games');
         }
     };
@@ -58,11 +58,12 @@ const AdminPage: React.FC = () => {
         const load = async () => {
             setLoading(true);
             setError(null);
+            setUnauthorized(false);
             try {
                 if (!isAuthenticated) return;
                 const token = await getAccessTokenSilently();
                 await Promise.all([fetchPlayers(token), fetchGames(token)]);
-            } catch (e) {
+            } catch {
                 setError('Failed to load admin data');
             } finally {
                 setLoading(false);
@@ -78,12 +79,16 @@ const AdminPage: React.FC = () => {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.status === 403) {
+                setUnauthorized(true);
+                return;
+            }
             if (!res.ok) {
                 setError('Failed to ban player');
                 return;
             }
             await fetchPlayers(token);
-        } catch (e) {
+        } catch {
             setError('Failed to ban player');
         }
     };
@@ -95,12 +100,16 @@ const AdminPage: React.FC = () => {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.status === 403) {
+                setUnauthorized(true);
+                return;
+            }
             if (!res.ok) {
                 setError('Failed to unban player');
                 return;
             }
             await fetchPlayers(token);
-        } catch (e) {
+        } catch {
             setError('Failed to unban player');
         }
     };
@@ -112,16 +121,21 @@ const AdminPage: React.FC = () => {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.status === 403) {
+                setUnauthorized(true);
+                return;
+            }
             if (!res.ok) {
                 setError('Failed to delete game');
                 return;
             }
             await fetchGames(token);
-        } catch (e) {
+        } catch {
             setError('Failed to delete game');
         }
     };
 
+    if (unauthorized) return <NotAuthorizedPage />;
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="error">{error}</div>;
 

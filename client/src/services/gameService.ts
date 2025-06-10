@@ -1,22 +1,12 @@
 import axios from 'axios'
+import type { GameRoom, GameRoomCreate } from '../types/game';
 //import { getToken } from './authService'
 
 const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:3001'
 
-interface GameRoom {
-    id: string;
-    name: string;
-    status: string;
-    players: number
-    maxPlayers: number;
-    currentPlayers: number;
-}
 
-interface GameRoomCreate {
-    name: string;
-    maxPlayers: number;
-    decks: number;
-}
+
+
 
 const api = axios.create({
     baseURL: API_URL

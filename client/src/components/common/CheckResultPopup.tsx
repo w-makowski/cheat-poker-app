@@ -1,22 +1,7 @@
 import React from 'react';
 import CardSprite from '../game/CardSprite';
-import type { Card } from '../../types/game';
+import type {CheckResult} from "../../types/game";
 
-interface CheckResultPlayer {
-    id: string;
-    username: string;
-    cards: Card[];
-}
-
-interface CheckResult {
-    checkedHand: {
-        hand: string;
-        ranks?: string[];
-    } | null;
-    checkedPlayerId: string | null;
-    isBluffing: boolean;
-    players: CheckResultPlayer[];
-}
 
 interface Props {
     checkResult: CheckResult;

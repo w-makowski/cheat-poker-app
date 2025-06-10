@@ -4,7 +4,7 @@ import { useSocket } from '../contexts/SocketContext';
 import { useAuth0 } from '@auth0/auth0-react';
 import { fetchGameDetails } from '../services/gameService';
 import { transformGameResponse } from '../utils/utils';
-import type { GameState, Card, CompleteHand } from '../types/game';
+import type { GameState, Card, CompleteHand, CheckResult } from '../types/game';
 import GameBoard from '../components/game/GameBoard';
 import PlayerList from '../components/game/PlayerList';
 import GameControls from '../components/game/GameControls';
@@ -12,23 +12,6 @@ import CheckResultPopup from "../components/common/CheckResultPopup";
 import GameFinishedPopup from "../components/common/GameFinishedPopup";
 import GameHistory from '../components/game/GameHistory';
 import { HANDS_REQUIRING_RANK, HANDS_REQUIRING_SUIT } from '../types/game';
-
-interface CheckResultPlayer {
-    id: string;
-    username: string;
-    cards: Card[];
-}
-
-interface CheckResult {
-    checkedHand: {
-        hand: string;
-        ranks?: string[];
-    } | null;
-    checkedPlayerId: string | null;
-    nextRoundPenaltyPlayerId: string | null;
-    isBluffing: boolean;
-    players: CheckResultPlayer[];
-}
 
 const GameRoomPage: React.FC = () => {
     const { gameId } = useParams<{ gameId: string }>();
@@ -405,7 +388,6 @@ const GameRoomPage: React.FC = () => {
                                 <GameBoard
                                     gameState={gameState}
                                     playerCards={playerCards}
-                                    isPlayerTurn={isPlayerTurn!}
                                 />
 
                                 {gameState.status === 'active' && (
