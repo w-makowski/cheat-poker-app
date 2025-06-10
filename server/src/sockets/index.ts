@@ -3,7 +3,7 @@ import { getUpdatedGameState } from '../utils/utils';
 import {
   activeGames,
   checkPreviousPlayer,
-  declareHand, getCheckResultData, handlePlayerLeaveInMemory,
+  declareHand, getCheckResultData, handlePlayerLeaveInMemory, handlePlayerReady,
   initializeGame,
   markPlayerReadyInMemory,
   startNewRound
@@ -23,7 +23,6 @@ export function setupSocketHandlers(io: Server) {
 
     // Joining game
     socket.on('joinGame', async ({gameId, auth0Id}) => {
-      console.log(`[SOCKET] joinGame: gameId=${gameId}, auth0Id=${auth0Id}`);
       socket.join(gameId);
 
       try {
@@ -42,7 +41,6 @@ export function setupSocketHandlers(io: Server) {
 
     // Obsługa rozpoczęcia gry
     socket.on('startGame', async ({ gameId }) => {
-      console.log(`[SOCKET] startGame: gameId=${gameId}`);
       try {
         const players = await getPlayersByGameId(gameId); // <-- await here
         const decks = 1;
@@ -173,19 +171,15 @@ export function setupSocketHandlers(io: Server) {
 
     // Add this inside setupSocketHandlers
     socket.on('playerReady', async ({ gameId }) => {
-      const players = await getPlayersByGameId(gameId);
-      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      const player = await handlePlayerReady(gameId, socket.id, playerIdToSocketId, true);
       if (player) {
-        player.ready = true;
         io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
       }
     });
 
     socket.on('playerUnready', async ({ gameId }) => {
-      const players = await getPlayersByGameId(gameId);
-      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      const player = await handlePlayerReady(gameId, socket.id, playerIdToSocketId, false);
       if (player) {
-        player.ready = false;
         io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
       }
     });
