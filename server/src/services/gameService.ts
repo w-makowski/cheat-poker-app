@@ -109,6 +109,13 @@ export async function endRound(
         if (activePlayers.length === 1) {
             game.status = 'finished';
             game.winner = activePlayers[0].id;
+        } else {
+            console.log('[EndRound] activePlaers', activePlayers);
+            console.log('[EndRound] First starting player index:', game.startingPlayerIndex);
+            do {
+                game.startingPlayerIndex = (game.startingPlayerIndex + 1) % game.players.length;
+                console.log('[EndRound] New starting player index:', game.startingPlayerIndex);
+            } while (!game.players[game.startingPlayerIndex].isActive);
         }
 
         game.currentPlayerIndex = 0;

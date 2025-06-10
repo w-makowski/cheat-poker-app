@@ -400,6 +400,10 @@ button, input, select, textarea {
   }
 }
 
+body.hide-navbar .navbar {
+  display: none !important;
+}
+
 .game-board {
   display: flex;
   flex-direction: column;
@@ -2278,6 +2282,7 @@ button, input, select, textarea {
   font-size: 1.1rem;
   font-weight: 600;
   transition: all 0.3s ease;
+  margin-bottom: 1rem;
 }
 .game-room-page .waiting-room .btn:hover, .game-room-page .waiting-room .btn:focus {
   background-color: rgb(33.1380753138, 125.1882845188, 186.8619246862);

@@ -48,6 +48,14 @@ const GameRoomPage: React.FC = () => {
     const [wasRoomDeleted, setWasRoomDeleted] = useState(false);
     const [historyLog, setHistoryLog] = useState<string[]>([]);
 
+    useEffect(() => {
+        document.body.classList.add('hide-navbar');
+
+        return () => {
+            document.body.classList.remove('hide-navbar');
+        };
+    }, []);
+
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -331,7 +339,7 @@ const GameRoomPage: React.FC = () => {
             )}
             <div className="game-room-page">
                 <div className="game-header">
-                    <h1>{gameState.name}</h1>
+                    <h1>{gameState.status === 'active' ? 'Cheat Poker Game' : gameState.name}</h1>
                     <div className="game-status">
                         <span>Status: {gameState.status}</span>
                         <button className="btn btn-danger" onClick={handleLeaveGame}>

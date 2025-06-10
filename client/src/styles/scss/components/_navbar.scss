@@ -68,3 +68,7 @@
       padding: $spacing-md $spacing-xl;
     }
   }
+
+  body.hide-navbar .navbar {
+    display: none !important;
+}

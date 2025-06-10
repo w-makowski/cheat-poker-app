@@ -29,13 +29,7 @@ const Navbar: React.FC = () => {
                 {isAuthenticated && (
                     <Link to="/profile" className={isActiveLink('/profile')}>Profile</Link>
                 )}
-                {/* <Link to="/">Home</Link>
-                <Link to="/rules">Rules</Link>
-                {isAuthenticated && (
-                    <>
-                    <Link to="/profile">Profile</Link>
-                    </>
-                )} */}
+
             </div>
             <div className="navbar-auth">
                 {isAuthenticated ? (

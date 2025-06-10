@@ -207,15 +207,9 @@ describe('gameService core functions', () => {
         { suit: CardSuit.HEARTS, rank: CardRank.KING } // 6 cards
     ];
 
-    // === Turn 1 ===
-    const hand0: CompleteHand = {
-        hand: PokerHand.PAIR,
-        ranks: [CardRank.TWO],
-        suit: null
-    };
-    expect(gameService.declareHand(gameId, 'p0', hand0)).toBe(true);
+    gameService.activeGames.get(gameId)!.startingPlayerIndex = 1; // p1 starts the game
 
-    // === Turn 2 === player p1 declares a stronger hand
+    // === Turn 1 === player p1 declares a stronger hand
     const hand1: CompleteHand = {
         hand: PokerHand.PAIR,
         ranks: [CardRank.THREE],
@@ -223,7 +217,7 @@ describe('gameService core functions', () => {
     };
     expect(gameService.declareHand(gameId, 'p1', hand1)).toBe(true);
 
-    // === Turn 3 === player p2 is checking previous player, p2 is wrong so he gets a penalty
+    // === Turn 2 === player p2 is checking previous player, p2 is wrong so he gets a penalty
     const result = await gameService.checkPreviousPlayer(gameId, 'p2');
     expect(result.isBluffing).toBe(false);
     expect(result.nextRoundPenaltyPlayer).toBe('p2');
