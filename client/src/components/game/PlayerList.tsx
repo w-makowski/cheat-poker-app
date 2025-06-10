@@ -52,7 +52,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                             {player.username}
                             {player.isHost && <span className="host-badge">Host</span>}
                             {player.id === currentPlayerId && <span className="you-badge">You</span>}
-                            {!player.isHost && (
+                            {!player.isHost && gameStatus !== 'active' && (
                                 <span style={{ marginLeft: 8 }}>
                                     {player.ready ? '✅ Ready' : '❌ Not Ready'}
                                 </span>

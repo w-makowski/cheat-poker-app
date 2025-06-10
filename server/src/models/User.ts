@@ -8,6 +8,8 @@ interface UserAttributes {
     auth0Id: string;
     createdAt?: Date;
     updatedAt?: Date;
+    role: 'user' | 'admin';
+    accountStatus: 'active' | 'banned';
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -17,6 +19,8 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public username!: string;
     public email!: string;
     public auth0Id!: string;
+    public role!: 'user' | 'admin';
+    public accountStatus!: 'active' | 'banned';
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -45,6 +49,16 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
+    },
+    role: {
+        type: DataTypes.ENUM('user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user'
+    },
+    accountStatus: {
+        type: DataTypes.ENUM('active', 'banned'),
+        allowNull: false,
+        defaultValue: 'active'
     }
 }, {
     sequelize,

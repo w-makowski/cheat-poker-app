@@ -2501,5 +2501,141 @@ button, input, select, textarea {
     overflow-y: visible;
   }
 }
+.admin-page {
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 2rem 0;
+  min-height: 60vh;
+  background: linear-gradient(135deg, #f5f5f5 0%, rgb(250.1, 250.1, 250.1) 100%);
+}
+@media (min-width: 576px) {
+  .admin-page {
+    max-width: 540px;
+  }
+}
+@media (min-width: 768px) {
+  .admin-page {
+    max-width: 720px;
+  }
+}
+@media (min-width: 992px) {
+  .admin-page {
+    max-width: 960px;
+  }
+}
+@media (min-width: 1200px) {
+  .admin-page {
+    max-width: 1140px;
+  }
+}
+.admin-page h1 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  line-height: 1.2;
+  font-size: 2.5rem;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+.admin-page h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #3498db, #e74c3c);
+  border-radius: 2px;
+}
+.admin-page .admin-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid #3498db;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.admin-page .admin-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+.admin-page .admin-section h2 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  line-height: 1.2;
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+}
+.admin-page .admin-section .admin-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.admin-page .admin-section .admin-actions .btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.admin-page .admin-section .admin-actions .btn:hover, .admin-page .admin-section .admin-actions .btn:focus {
+  background-color: rgb(33.1380753138, 125.1882845188, 186.8619246862);
+}
+.admin-page .admin-section .admin-actions .btn:disabled {
+  background-color: rgb(138.6359832636, 195.9581589958, 234.3640167364);
+  cursor: not-allowed;
+}
+.admin-page .admin-section .admin-actions .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+.admin-page .admin-section .admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+.admin-page .admin-section .admin-table th, .admin-page .admin-section .admin-table td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+.admin-page .admin-section .admin-table th {
+  background: rgb(246.9309623431, 250.9058577406, 253.5690376569);
+  color: #2c3e50;
+  font-weight: 600;
+}
+.admin-page .admin-section .admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-page .admin-section .admin-table tr:hover {
+  background: rgba(52, 152, 219, 0.05);
+}
+
+@media (min-width: 576px) {
+  .admin-page {
+    padding: 3rem 0;
+  }
+  .admin-page .admin-section {
+    padding: 2rem;
+  }
+}
 
 /*# sourceMappingURL=style.css.map */

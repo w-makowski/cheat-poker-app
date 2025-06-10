@@ -29,3 +29,9 @@ export async function setPlayerAsHost(gameId: string | number, playerId: string 
         { where: { gameId, id: playerId } }
     );
 }
+
+export async function getAllGames() {
+    return Game.findAll({
+        where: { status: 'waiting' }
+    });
+}

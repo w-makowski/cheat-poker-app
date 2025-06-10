@@ -10,6 +10,7 @@ import CreateGamePage from './pages/CreateGamePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { SocketProvider } from './contexts/SocketContext';
 import { useUserSync } from './hooks/useUserSync';
+import AdminPage from './pages/AdminPage';
 // import './App.css'
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="rules" element={<RulesPage />} />
           <Route path="login" element={<LoginPage />} />
-          <Route 
+          <Route
             path="games/:gameId" 
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -50,6 +51,7 @@ function App() {
             </ProtectedRoute>
             } />
         </Route>
+        <Route path="admin" element={<AdminPage />} />
       </Routes>
     </SocketProvider>
   );
