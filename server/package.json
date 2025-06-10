@@ -6,6 +6,7 @@
     "test": "jest",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
+    "prestart": "npm run build",
     "start": "node dist/app.js",
     "migrate": "sequelize-cli db:migrate",
     "seed": "sequelize-cli db:seed:all"

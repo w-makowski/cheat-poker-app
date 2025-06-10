@@ -1,0 +1,105 @@
+.admin-page {
+  @include container;
+  padding: $spacing-xl 0;
+  min-height: 60vh;
+  background: linear-gradient(135deg, $background-color 0%, lighten($background-color, 2%) 100%);
+
+  h1 {
+    @include heading('xl');
+    color: $primary-color;
+    text-align: center;
+    margin-bottom: $spacing-xxl;
+    position: relative;
+    padding-bottom: $spacing-lg;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, $secondary-color, $accent-color);
+      border-radius: 2px;
+    }
+  }
+
+  .admin-section {
+    @include card;
+    margin-bottom: $spacing-xl;
+    border-left: 4px solid $secondary-color;
+    @include transition(transform, box-shadow);
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $box-shadow-md;
+    }
+
+    h2 {
+      @include heading('lg');
+      color: $primary-color;
+      margin-bottom: $spacing-lg;
+      padding-bottom: $spacing-sm;
+      border-bottom: 2px solid rgba($secondary-color, 0.1);
+    }
+
+    .admin-actions {
+      @include flex(row, flex-start, center);
+      gap: $spacing-md;
+      margin-bottom: $spacing-md;
+
+      .btn {
+        @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+        border: none;
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $border-radius-md;
+        font-weight: 500;
+        @include transition(all);
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: $box-shadow-sm;
+        }
+      }
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: $spacing-lg;
+
+      th, td {
+        padding: $spacing-sm $spacing-md;
+        border-bottom: 1px solid $border-color;
+        text-align: left;
+      }
+
+      th {
+        background: lighten($secondary-color, 45%);
+        color: $primary-color;
+        font-weight: 600;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background: rgba($secondary-color, 0.05);
+      }
+    }
+  }
+}
+
+@include respond-to(sm) {
+  .admin-page {
+    padding: $spacing-xxl 0;
+
+    .admin-section {
+      padding: $spacing-xl;
+    }
+  }
+}

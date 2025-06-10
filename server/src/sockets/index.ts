@@ -3,7 +3,7 @@ import { getUpdatedGameState } from '../utils/utils';
 import {
   activeGames,
   checkPreviousPlayer,
-  declareHand, getCheckResultData, handlePlayerLeaveInMemory,
+  declareHand, getCheckResultData, handlePlayerLeaveInMemory, handlePlayerReady,
   initializeGame,
   markPlayerReadyInMemory,
   startNewRound
@@ -15,15 +15,18 @@ import { deleteGame, setPlayerAsHost } from "../repositories/gameRepository";
 const playerIdToSocketId = new Map<string, string>();
 const leftPlayers = new Set<string>();
 
+let ioRef: Server | null = null;
+
+
 
 
 export function setupSocketHandlers(io: Server) {
+  ioRef = io;
   io.on('connection', (socket: Socket) => {
     console.log('[SOCKET] User connected:', socket.id);
 
     // Joining game
     socket.on('joinGame', async ({gameId, auth0Id}) => {
-      console.log(`[SOCKET] joinGame: gameId=${gameId}, auth0Id=${auth0Id}`);
       socket.join(gameId);
 
       try {
@@ -42,7 +45,6 @@ export function setupSocketHandlers(io: Server) {
 
     // Obsługa rozpoczęcia gry
     socket.on('startGame', async ({ gameId }) => {
-      console.log(`[SOCKET] startGame: gameId=${gameId}`);
       try {
         const players = await getPlayersByGameId(gameId); // <-- await here
         const decks = 1;
@@ -173,19 +175,15 @@ export function setupSocketHandlers(io: Server) {
 
     // Add this inside setupSocketHandlers
     socket.on('playerReady', async ({ gameId }) => {
-      const players = await getPlayersByGameId(gameId);
-      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      const player = await handlePlayerReady(gameId, socket.id, playerIdToSocketId, true);
       if (player) {
-        player.ready = true;
         io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
       }
     });
 
     socket.on('playerUnready', async ({ gameId }) => {
-      const players = await getPlayersByGameId(gameId);
-      const player = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
+      const player = await handlePlayerReady(gameId, socket.id, playerIdToSocketId, false);
       if (player) {
-        player.ready = false;
         io.to(gameId).emit('gameStateUpdate', await getUpdatedGameState(gameId));
       }
     });
@@ -329,6 +327,16 @@ export function setupSocketHandlers(io: Server) {
       io.to(gameId).emit('gameDeleted');
     });
 
+    socket.on('deleteGameByAdmin', async ({ gameId }) => {
+      const players = await getPlayersByGameId(gameId);
+      const host = players.find(p => p.isHost);
+      if (!host || playerIdToSocketId.get(String(host.id)) !== socket.id) return;
+
+      await deleteGame(gameId);
+      activeGames.delete(gameId);
+      io.to(gameId).emit('gameDeletedByAdmin');
+    });
+
     // Obsługa rozłączenia
     socket.on('disconnect', () => {
       console.log('[SOCKET] disconnect:', socket.id);
@@ -339,4 +347,10 @@ export function setupSocketHandlers(io: Server) {
       }
     });
   });
+}
+
+export function emitGameDeletedByAdmin(gameId: string) {
+  if (ioRef) {
+    ioRef.to(gameId).emit('gameDeletedByAdmin');
+  }
 }

@@ -5,7 +5,7 @@ import type { GameBoardProps } from '../../types/game';
 import { HANDS_REQUIRING_RANK, HANDS_REQUIRING_SUIT } from '../../types/game';
 
 
-const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerTurn }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards}) => {
     return (
         <div className="game-board">
             <div className="game-info">

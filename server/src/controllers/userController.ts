@@ -30,7 +30,9 @@ export const getMeHandler = async (req: Request, res: Response, next: NextFuncti
         user = await User.create({
           auth0Id,
           email,
-          username: username
+          username: username,
+            role: 'user',
+            accountStatus: 'active'
         });
       }
 

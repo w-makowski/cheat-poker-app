@@ -16,6 +16,7 @@ interface PlayerListProps {
     activePlayerId?: string;
     isHost?: boolean;
     onKickPlayer?: (playerId: string) => void;
+    gameStatus?: string;
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({
@@ -23,7 +24,8 @@ const PlayerList: React.FC<PlayerListProps> = ({
                                                    currentPlayerId,
                                                    activePlayerId,
                                                    isHost,
-                                                   onKickPlayer
+                                                   onKickPlayer,
+                                                   gameStatus,
                                                }) => {
     const sortedPlayers = [...players].sort((a, b) => a.position - b.position);
 
@@ -34,11 +36,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
                 {sortedPlayers.map((player) => (
                     <div
                         key={player.id}
-                        className={`player-item
-                            ${player.id === currentPlayerId ? 'current-player' : ''}
-                            ${player.id === activePlayerId ? 'active-turn' : ''}
-                            ${!player.isActive ? 'inactive' : ''}
-                        `}
+                        className={
+                            'player-item' +
+                            (player.id === currentPlayerId ? ' current-player' : '') +
+                            (player.id === activePlayerId ? ' active-turn' : '') +
+                            (!player.isActive ? ' inactive' : '')
+                        }
                         style={{
                             opacity: !player.isActive ? 0.5 : 1,
                             color: !player.isActive ? '#aaa' : player.id === activePlayerId ? '#2196f3' : undefined,
@@ -49,12 +52,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
                             {player.username}
                             {player.isHost && <span className="host-badge">Host</span>}
                             {player.id === currentPlayerId && <span className="you-badge">You</span>}
-                            {!player.isHost && (
+                            {!player.isHost && gameStatus !== 'active' && (
                                 <span style={{ marginLeft: 8 }}>
                                     {player.ready ? '✅ Ready' : '❌ Not Ready'}
                                 </span>
                             )}
-                            {isHost && onKickPlayer && !player.isHost && player.id !== currentPlayerId && (
+                            {isHost && onKickPlayer && !player.isHost && player.id !== currentPlayerId && gameStatus !== 'active' && (
                                 <button
                                     className="kick-btn"
                                     onClick={() => onKickPlayer(player.id)}

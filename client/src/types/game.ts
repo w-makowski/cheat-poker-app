@@ -21,16 +21,9 @@ export enum CardRank {
     ACE = 'A'
 }
 
-
 export interface Card {
     suit: CardSuit;
     rank: CardRank;
-}
-
-export interface CompleteHand {
-    hand: PokerHand;
-    ranks: CardRank[];  // from most important to least
-    suit: CardSuit | null; // only for flushes, straight flushes and royal flushes
 }
 
 export enum PokerHand {
@@ -46,6 +39,14 @@ export enum PokerHand {
     ROYAL_FLUSH = 'ROYAL_FLUSH'
 }
 
+export interface CompleteHand {
+    hand: PokerHand;
+    ranks: CardRank[];  // from most important to least
+    suit: CardSuit | null; // only for flushes, straight flushes and royal flushes
+}
+
+// --- Consolidated interfaces ---
+
 export interface Player {
     id: string;
     username: string;
@@ -56,6 +57,21 @@ export interface Player {
     auth0Id: string;
     isHost: boolean;
     ready?: boolean;
+    banned?: boolean; // for admin page
+}
+
+export interface Game {
+    id: string;
+    name: string;
+    players: string[];
+}
+
+export interface GameRoom {
+    id: string;
+    name: string;
+    status: string;
+    maxPlayers: number;
+    currentPlayers: number;
 }
 
 export interface GameState {
@@ -84,6 +100,13 @@ export interface GameControlsProps {
     onDeclareHand: (completeHand: CompleteHand) => void;
     onChallengeDeclaration: () => void;
 }
+
+export interface GameBoardProps {
+    gameState: GameState;
+    playerCards: Card[] | null;
+}
+
+// --- Utility constants and functions ---
 
 export const RANK_VALUES: Record<CardRank, number> = {
     [CardRank.TWO]: 2,
@@ -166,10 +189,27 @@ export const HANDS_REQUIRING_SUIT = [
     PokerHand.FLUSH,
     PokerHand.STRAIGHT_FLUSH,
     PokerHand.ROYAL_FLUSH
-]
+];
 
-export interface GameBoardProps {
-    gameState: GameState;
-    playerCards: Card[] | null;
-    isPlayerTurn: boolean;
+export interface CheckResultPlayer {
+    id: string;
+    username: string;
+    cards: Card[];
+}
+
+export interface CheckResult {
+    checkedHand: {
+        hand: string;
+        ranks?: string[];
+    } | null;
+    checkedPlayerId: string | null;
+    nextRoundPenaltyPlayerId: string | null;
+    isBluffing: boolean;
+    players: CheckResultPlayer[];
+}
+
+export interface GameRoomCreate {
+    name: string;
+    maxPlayers: number;
+    decks: number;
 }

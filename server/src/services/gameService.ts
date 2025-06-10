@@ -5,7 +5,7 @@ import { getNextActivePlayerIndex } from '../utils/gameHelpers';
 import { handStrength, compareHands } from '../utils/pokerHands';
 import { validateDeclaredHand } from '../utils/validateDeclaredHand';
 import { updateGameStatus } from "../repositories/gameRepository";
-import { removePlayerFromGame } from "../repositories/playerRepository";
+import {getPlayersByGameId, removePlayerFromGame, updatePlayerReady} from "../repositories/playerRepository";
 
 export const activeGames = new Map<string, GameState>();
 
@@ -209,4 +209,39 @@ export function markPlayerReadyInMemory(gameId: string, playerId: string, ready:
     if (!player) return false;
     player.ready = ready;
     return true;
+}
+
+export async function handlePlayerReady(
+    gameId: string,
+    socketId: string,
+    playerIdToSocketId: Map<string, string>,
+    ready: boolean
+) {
+    const numGameId = Number(gameId);
+    const players = await getPlayersByGameId(numGameId);
+    const player = players.find(p => playerIdToSocketId.get(p.id) === socketId);
+    if (player) {
+        await updatePlayerReady(player.id, ready); // DB
+        markPlayerReadyInMemory(gameId, player.id, ready); // In-memory
+    }
+    return player;
+}
+
+export async function handleKickPlayer(
+    gameId: string,
+    kickerSocketId: string,
+    playerIdToSocketId: Map<string, string>,
+    playerIdToKick: string
+) {
+    const numGameId = Number(gameId);
+    const players = await getPlayersByGameId(numGameId);
+    const host = players.find(p => p.isHost);
+    if (!host) return { error: 'No host found' };
+    if (String(playerIdToKick) === String(host.id)) return { error: 'Host cannot kick themselves' };
+    if (playerIdToSocketId.get(String(host.id)) !== kickerSocketId) return { error: 'Only host can kick' };
+
+    const { isGameFinished } = await removePlayerFromGame(gameId, playerIdToKick);
+    handlePlayerLeaveInMemory(gameId, playerIdToKick);
+
+    return { isGameFinished, kickedPlayerId: playerIdToKick };
 }

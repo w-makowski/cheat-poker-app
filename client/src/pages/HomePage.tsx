@@ -2,14 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { fetchGameRooms, joinGameRoom } from '../services/gameService';
+import type { GameRoom } from '../types/game';
 
-interface GameRoom {
-    id: string;
-    name: string;
-    status: string;
-    maxPlayers: number;
-    currentPlayers: number;
-}
 
 const HomePage: React.FC = () => {
     const [gameRooms, setGameRooms] = useState<GameRoom[]>([]);
