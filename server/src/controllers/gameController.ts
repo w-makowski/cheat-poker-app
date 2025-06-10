@@ -7,17 +7,6 @@ import { createDeck, shuffleDeck } from '../utils/deck';
 
 export async function createGame(req: Request, res: Response) {
     try {
-        // const { name, userId, maxPlayers, numberOfDecks } = req.body;
-
-        // if (!name || !userId) {
-        //     return res.status(400).json({ error: 'Name and userId are required' });
-        // }
-
-        // const user = await User.findByPk(userId);
-        // if (!user) {
-        //     return res.status(404).json({ error: 'User not found' });
-        // }
-
         const auth0Id = (req as any).auth?.sub;
         const { name, maxPlayers, numberOfDecks } = req.body;
 
@@ -28,6 +17,10 @@ export async function createGame(req: Request, res: Response) {
         const user = await User.findOne({ where: { auth0Id } });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.accountStatus === 'banned') {
+            return res.status(403).json({ error: 'User is banned' });
         }
 
         const game = await Game.create({
@@ -98,6 +91,11 @@ export async function joinGame(req: Request, res: Response) {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
+
+        if (user.accountStatus === 'banned') {
+            return res.status(403).json({ error: 'User is banned' });
+        }
+
         const userId = user.id;
 
         if (!gameId || !userId) {

@@ -23,10 +23,10 @@ USER app
 RUN npm install
 
 # Set default backend port (can be overridden at runtime)
-ENV PORT=5000
+ENV PORT=5001
 
 # Expose backend port
-EXPOSE 5000
+EXPOSE 5001
 
 # Start the backend app
 CMD [ "npm", "start" ]
