@@ -88,6 +88,14 @@
     min-height: 0;
     background-color: $table-color;
   }
+  .main-game-area.waiting {
+    @include card;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: $spacing-lg;
+    min-height: 0;
+    background-color: white;
+  }
 
   .waiting-room {
     @include flex-center;
