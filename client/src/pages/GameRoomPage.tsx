@@ -30,6 +30,8 @@ const GameRoomPage: React.FC = () => {
     const [wasKicked, setWasKicked] = useState(false);
     const [wasRoomDeleted, setWasRoomDeleted] = useState(false);
     const [historyLog, setHistoryLog] = useState<string[]>([]);
+    const [wasRoomDeletedByAdmin, setWasRoomDeletedByAdmin] = useState(false);
+
 
 
     useEffect(() => {
@@ -128,6 +130,12 @@ const GameRoomPage: React.FC = () => {
         };
         socket.on('gameDeleted', handleGameDeleted);
 
+        const handleGameDeletedByAdmin = () => {
+            setWasRoomDeletedByAdmin(true);
+        };
+        socket.on('gameDeletedByAdmin', handleGameDeletedByAdmin);
+
+
         return () => {
             socket.off('gameFinished');
             socket.off('gameStateUpdate');
@@ -139,6 +147,8 @@ const GameRoomPage: React.FC = () => {
             socket.off('updateDeclarationHistory');
             socket.off('kickedFromGame', handleKicked);
             socket.off('gameDeleted', handleGameDeleted);
+            socket.off('gameDeletedByAdmin', handleGameDeletedByAdmin);
+
         };
     }, [socket, connected, gameId, navigate]);
 
@@ -280,6 +290,22 @@ const GameRoomPage: React.FC = () => {
             <div className="popup-overlay">
                 <div className="popup-content">
                     <h2>The room has been deleted by the host</h2>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate('/')}
+                    >
+                        Return to Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (wasRoomDeletedByAdmin) {
+        return (
+            <div className="popup-overlay">
+                <div className="popup-content">
+                    <h2>This room was deleted by an admin</h2>
                     <button
                         className="btn btn-primary"
                         onClick={() => navigate('/')}

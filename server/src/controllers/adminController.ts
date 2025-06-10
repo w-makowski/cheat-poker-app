@@ -4,6 +4,7 @@ import { getAllGames, deleteGame } from '../repositories/gameRepository';
 import Player from '../models/Player';
 
 import { unbanUserById } from '../repositories/userRepository';
+import { emitGameDeletedByAdmin } from '../sockets';
 
 export const getAllPlayersHandler = async (_req: Request, res: Response) => {
     try {
@@ -52,6 +53,7 @@ export const deleteGameHandler = async (req: Request, res: Response) => {
     try {
         const { gameId } = req.params;
         await deleteGame(gameId);
+        emitGameDeletedByAdmin(gameId); // Notify all players
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete game' });

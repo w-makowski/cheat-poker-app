@@ -15,9 +15,13 @@ import { deleteGame, setPlayerAsHost } from "../repositories/gameRepository";
 const playerIdToSocketId = new Map<string, string>();
 const leftPlayers = new Set<string>();
 
+let ioRef: Server | null = null;
+
+
 
 
 export function setupSocketHandlers(io: Server) {
+  ioRef = io;
   io.on('connection', (socket: Socket) => {
     console.log('[SOCKET] User connected:', socket.id);
 
@@ -323,6 +327,16 @@ export function setupSocketHandlers(io: Server) {
       io.to(gameId).emit('gameDeleted');
     });
 
+    socket.on('deleteGameByAdmin', async ({ gameId }) => {
+      const players = await getPlayersByGameId(gameId);
+      const host = players.find(p => p.isHost);
+      if (!host || playerIdToSocketId.get(String(host.id)) !== socket.id) return;
+
+      await deleteGame(gameId);
+      activeGames.delete(gameId);
+      io.to(gameId).emit('gameDeletedByAdmin');
+    });
+
     // Obsługa rozłączenia
     socket.on('disconnect', () => {
       console.log('[SOCKET] disconnect:', socket.id);
@@ -333,4 +347,10 @@ export function setupSocketHandlers(io: Server) {
       }
     });
   });
+}
+
+export function emitGameDeletedByAdmin(gameId: string) {
+  if (ioRef) {
+    ioRef.to(gameId).emit('gameDeletedByAdmin');
+  }
 }

@@ -12,6 +12,9 @@ export async function updateGameStatus(gameId: string, status: GameStatus): Prom
 }
 
 export async function deleteGame(gameId: string | number): Promise<void> {
+    await Player.destroy({
+        where: { gameId }
+    });
     await Game.destroy({
         where: { id: gameId }
     });
