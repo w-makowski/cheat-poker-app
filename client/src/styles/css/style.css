@@ -2593,7 +2593,6 @@ body.hide-navbar .navbar {
   align-items: center;
   flex-wrap: nowrap;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 .admin-page .admin-section .admin-actions .btn {
   background-color: #3498db;

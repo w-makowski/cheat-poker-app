@@ -49,7 +49,7 @@
     .admin-actions {
       @include flex(row, flex-start, center);
       gap: $spacing-md;
-      margin-bottom: $spacing-md;
+      // margin-bottom: $spacing-md;
 
       .btn {
         @include button-variant($secondary-color, white, darken($secondary-color, 10%));
