@@ -164,15 +164,7 @@
         color: $text-color;
       }
     }
-  
-    // Special styling for specific fields
-    // &#name-field {
-    //   input {
-    //     background: linear-gradient(135deg, rgba($secondary-color, 0.02), rgba($accent-color, 0.02));
-    //   }
-    // }
-  
-    // Validation states
+
     &.error {
       input, select {
         border-color: $error-color;
@@ -293,3 +285,4 @@
       }
     }
   }
+  

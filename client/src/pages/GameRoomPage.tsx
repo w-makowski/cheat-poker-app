@@ -380,8 +380,7 @@ const GameRoomPage: React.FC = () => {
                             </div>
                         )}
                     </div>
-
-                    <div className="main-game-area">
+                    <div className={`main-game-area ${gameState.status === 'waiting' ? 'waiting' : ''}`}>
                         {gameState.status === 'waiting' ? (
                             <div className="waiting-room">
                                 <h2>Waiting for players to join...</h2>
