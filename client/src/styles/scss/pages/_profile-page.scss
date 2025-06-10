@@ -249,13 +249,6 @@
     }
   }
   
-  // Responsive improvements
-// @include respond-to(sm) {
-//     .profile-page {
-//       padding-top: $spacing-xxl;
-//     }
-// }
-  
 @include respond-to(lg) {
     .profile-card {
       max-width: 700px;
