@@ -43,7 +43,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
                 )}
             </div>
 
-            <div className="turn-indicator">
+            {/* <div className="turn-indicator">
                 {isPlayerTurn ? (
                     <div className="your-turn">It's your turn!</div>
                 ) : (
@@ -51,7 +51,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, playerCards, isPlayerT
                         Waiting for player {gameState.players[gameState.currentTurn]?.username} to make a move...
                     </div>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 };

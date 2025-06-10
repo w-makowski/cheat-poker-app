@@ -1,0 +1,291 @@
+// GameRoomPage.scss
+.game-room-page {
+//   min-height: 100vh;
+  background: linear-gradient(135deg, $background-color 0%, darken($background-color, 5%) 100%);
+//   padding: $spacing-md;
+
+  .game-header {
+    @include flex(row, space-between, center);
+    @include card;
+    margin-bottom: $spacing-lg;
+    background: linear-gradient(135deg, $primary-color 0%, lighten($primary-color, 10%) 100%);
+    color: $light-text;
+
+    h1 {
+      @include heading('lg');
+      margin: 0;
+      color: $light-text;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-status {
+      @include flex(row, flex-end, center);
+      gap: $spacing-md;
+
+      span {
+        font-weight: 500;
+        opacity: 0.9;
+      }
+
+      .btn {
+        @include button-variant($accent-color, white, darken($accent-color, 10%));
+        border: none;
+        padding: $spacing-sm $spacing-md;
+        border-radius: $border-radius-md;
+        font-weight: 500;
+        @include transition(background-color, transform);
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: $box-shadow-md;
+        }
+      }
+    }
+  }
+
+  .game-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: $spacing-lg;
+    height: calc(100vh - 120px);
+
+    @include respond-to(md) {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      height: auto;
+    }
+  }
+  .game-container.sidebar-active {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+
+    // @include respond-to(md) {
+    //     grid-template-columns: 1fr;
+    //     grid-template-rows: auto 1fr;
+    //     height: auto;
+    //   }
+  }
+
+  .sidebar {
+    @include flex(column, flex-start, stretch);
+    gap: $spacing-lg;
+    height: fit-content;
+    max-height: 100%;
+    overflow-y: auto;
+
+    @include respond-to(md) {
+      height: auto;
+      max-height: none;
+      overflow-y: visible;
+    }
+  }
+
+  .main-game-area {
+    @include card;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: $spacing-lg;
+    min-height: 0;
+    background-color: $table-color;
+  }
+
+  .waiting-room {
+    @include flex-center;
+    flex-direction: column;
+    // gap: $spacing-lg;
+    text-align: center;
+    // padding: $spacing-xxl;
+
+    h2 {
+      @include heading('md');
+      color: $primary-color;
+      margin-bottom: $spacing-md;
+    }
+
+    p {
+      font-size: 1rem;
+      color: $text-color;
+      opacity: 0.8;
+    }
+
+    .btn {
+      @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+      border: none;
+      padding: $spacing-md $spacing-xl;
+      border-radius: $border-radius-md;
+      font-size: 1.1rem;
+      font-weight: 600;
+      @include transition(all);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $box-shadow-md;
+      }
+
+      &.btn-success {
+        @include button-variant($success-color, white, darken($success-color, 10%));
+      }
+
+      &.btn-warning {
+        @include button-variant($warning-color, white, darken($warning-color, 10%));
+      }
+    }
+  }
+
+  .host-controls {
+    @include card;
+    background: linear-gradient(135deg, lighten($secondary-color, 45%) 0%, lighten($secondary-color, 50%) 100%);
+    border-left: 4px solid $secondary-color;
+
+    h3 {
+      @include heading('sm');
+      color: $primary-color;
+      margin-bottom: $spacing-md;
+    }
+
+    .button-group {
+        display: flex;
+        gap: $spacing-sm;
+        align-items: stretch;
+        flex-direction: row;
+        // margin-top: $spacing-md;
+      }
+
+    .btn {
+      width: 100%;
+      border: none;
+      padding: $spacing-md;
+      border-radius: $border-radius-md;
+      height: 100%;
+      font-weight: 600;
+      @include transition(all);
+
+      &.btn-primary {
+        @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+      }
+
+      &.btn-danger {
+        @include button-variant($accent-color, white, darken($accent-color, 10%));
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: $box-shadow-sm;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .warning {
+      color: $warning-color;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-top: $spacing-sm;
+      padding: $spacing-sm;
+      background: rgba($warning-color, 0.1);
+      border-radius: $border-radius-sm;
+      border-left: 3px solid $warning-color;
+    }
+  }
+}
+
+// Loading and Error States
+.loading {
+  @include flex-center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: $text-color;
+}
+
+.error-container {
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-lg;
+  height: 100vh;
+  text-align: center;
+  padding: $spacing-xl;
+
+  h2 {
+    @include heading('lg');
+    color: $accent-color;
+  }
+
+  p {
+    color: $text-color;
+    font-size: 1.1rem;
+    opacity: 0.8;
+  }
+
+  .btn {
+    @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+    border: none;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $border-radius-md;
+    font-weight: 600;
+    @include transition(all);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $box-shadow-md;
+    }
+  }
+}
+
+// Popup/Modal Styles
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  @include flex-center;
+  z-index: $z-index-modal;
+  backdrop-filter: blur(4px);
+
+  .popup-content {
+    @include card;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: $box-shadow-lg;
+    border-radius: $border-radius-lg;
+
+    h2 {
+      @include heading('md');
+      color: $accent-color;
+      margin-bottom: $spacing-lg;
+    }
+
+    .btn {
+      @include button-variant($secondary-color, white, darken($secondary-color, 10%));
+      border: none;
+      padding: $spacing-md $spacing-xl;
+      border-radius: $border-radius-md;
+      font-weight: 600;
+      @include transition(all);
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: $box-shadow-sm;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+    .game-container.sidebar-active {
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto 1fr;
+      height: auto;
+    }
+  
+    .sidebar {
+      height: auto;
+      max-height: none;
+      overflow-y: visible;
+    }
+}

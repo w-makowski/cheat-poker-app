@@ -1,15 +1,15 @@
 .profile-page {
     @include container;
     padding-top: $spacing-xl;
-    padding-bottom: $spacing-xl;
-    min-height: 100vh;
+    // padding-bottom: $spacing-xl;
+    min-height: 60vh;
     background-color: $background-color;
   
     h1 {
       @include heading('xl');
       text-align: center;
       color: $primary-color;
-      margin-bottom: $spacing-xl;
+    //   margin-bottom: $spacing-xl;
     }
   
     .loading {
@@ -250,11 +250,11 @@
   }
   
   // Responsive improvements
-@include respond-to(sm) {
-    .profile-page {
-      padding-top: $spacing-xxl;
-    }
-}
+// @include respond-to(sm) {
+//     .profile-page {
+//       padding-top: $spacing-xxl;
+//     }
+// }
   
 @include respond-to(lg) {
     .profile-card {

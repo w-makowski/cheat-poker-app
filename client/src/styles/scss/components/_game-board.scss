@@ -1,91 +1,278 @@
-.game-board {
-    @include card;
-    margin-bottom: $spacing-lg;
+// .game-board {
+//     @include card;
+//     margin-bottom: $spacing-lg;
     
-    .game-info {
-      margin-bottom: $spacing-lg;
-      border-bottom: 1px solid $border-color;
-      padding-bottom: $spacing-md;
-    }
+//     .game-info {
+//       margin-bottom: $spacing-lg;
+//       border-bottom: 1px solid $border-color;
+//       padding-bottom: $spacing-md;
+//     }
     
-    .last-declaration {
-      background-color: rgba($primary-color, 0.1);
-      padding: $spacing-md;
-      border-radius: $border-radius-sm;
-      margin-bottom: $spacing-md;
+//     .last-declaration {
+//       background-color: rgba($primary-color, 0.1);
+//       padding: $spacing-md;
+//       border-radius: $border-radius-sm;
+//       margin-bottom: $spacing-md;
       
-      h3 {
-        font-size: 1rem;
-        margin-bottom: $spacing-xs;
-      }
+//       h3 {
+//         font-size: 1rem;
+//         margin-bottom: $spacing-xs;
+//       }
       
-      p {
-        margin-bottom: 0;
-      }
-    }
+//       p {
+//         margin-bottom: 0;
+//       }
+//     }
     
-    .player-hand {
-      margin-bottom: $spacing-lg;
+//     .player-hand {
+//       margin-bottom: $spacing-lg;
       
-      h3 {
-        margin-bottom: $spacing-md;
-      }
+//       h3 {
+//         margin-bottom: $spacing-md;
+//       }
       
-      .cards-container {
-        @include flex(row, flex-start, center);
-        flex-wrap: wrap;
-        gap: $spacing-sm;
+//       .cards-container {
+//         @include flex(row, flex-start, center);
+//         flex-wrap: wrap;
+//         gap: $spacing-sm;
         
-        .card {
-          width: 80px;
-          height: 120px;
-          border-radius: $border-radius-sm;
-          background-color: white;
-          border: 1px solid $border-color;
-          @include flex(column, space-between, center);
-          padding: $spacing-sm;
-          position: relative;
-          box-shadow: $box-shadow-sm;
-          @include transition(transform);
+//         .card {
+//           width: 80px;
+//           height: 120px;
+//           border-radius: $border-radius-sm;
+//           background-color: white;
+//           border: 1px solid $border-color;
+//           @include flex(column, space-between, center);
+//           padding: $spacing-sm;
+//           position: relative;
+//           box-shadow: $box-shadow-sm;
+//           @include transition(transform);
           
-          &:hover {
-            transform: translateY(-5px);
-          }
+//           &:hover {
+//             transform: translateY(-5px);
+//           }
           
-          .card-value {
-            font-size: 1.25rem;
-            font-weight: bold;
-          }
+//           .card-value {
+//             font-size: 1.25rem;
+//             font-weight: bold;
+//           }
           
-          .card-suit {
-            font-size: 2rem;
-          }
+//           .card-suit {
+//             font-size: 2rem;
+//           }
           
-          &.hearts, &.diamonds {
-            color: $hearts-color;
-          }
+//           &.hearts, &.diamonds {
+//             color: $hearts-color;
+//           }
           
-          &.clubs, &.spades {
-            color: $clubs-color;
-          }
+//           &.clubs, &.spades {
+//             color: $clubs-color;
+//           }
+//         }
+//       }
+//     }
+    
+//     .turn-indicator {
+//       background-color: rgba($primary-color, 0.05);
+//       padding: $spacing-md;
+//       border-radius: $border-radius-sm;
+//       text-align: center;
+      
+//       .your-turn {
+//         font-weight: bold;
+//         color: $success-color;
+//       }
+      
+//       .waiting-turn {
+//         color: $text-color;
+//       }
+//     }
+//   }
+  
+
+// GameBoard.scss
+
+.game-board {
+  @include flex(column, flex-start, stretch);
+  gap: $spacing-lg;
+  height: 100%;
+  min-height: 0;
+
+  .game-info {
+    background: linear-gradient(135deg, $primary-color 0%, lighten($primary-color, 5%) 100%);
+    color: $light-text;
+    padding: $spacing-lg;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow-md;
+
+    h2 {
+      @include heading('md');
+      margin: 0 0 $spacing-md 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      color: $light-text;
+    }
+
+    .last-declaration {
+      background: rgba(255, 255, 255, 0.1);
+      padding: $spacing-md;
+      border-radius: $border-radius-md;
+      border-left: 4px solid $secondary-color;
+      backdrop-filter: blur(10px);
+
+      h3 {
+        @include heading('sm');
+        margin: 0 0 $spacing-sm 0;
+        color: $secondary-color;
+      }
+
+      p {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+
+        strong {
+          color: $secondary-color;
+          margin-right: $spacing-sm;
         }
       }
     }
-    
-    .turn-indicator {
-      background-color: rgba($primary-color, 0.05);
-      padding: $spacing-md;
-      border-radius: $border-radius-sm;
-      text-align: center;
-      
-      .your-turn {
-        font-weight: bold;
-        color: $success-color;
+  }
+
+  .player-hand {
+    background: white;
+    background-color: $table-color-light;
+    border-radius: $border-radius-lg;
+    padding: $spacing-lg;
+    box-shadow: $box-shadow-sm;
+    border: 2px solid $background-color;
+
+    h3 {
+      @include heading('sm');
+      color: $light-text;
+      margin: 0 0 $spacing-lg 0;
+      padding-bottom: $spacing-sm;
+      border-bottom: 2px solid $background-color;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: $secondary-color;
       }
+    }
+    .cards-container {
+      @include flex(row, flex-start, center);
+      flex-wrap: wrap;
+      gap: $spacing-sm;
       
-      .waiting-turn {
-        color: $text-color;
+      .card {
+        width: 80px;
+        height: 120px;
+        border-radius: $border-radius-sm;
+        background-color: white;
+        border: 1px solid $border-color;
+        @include flex(column, space-between, center);
+        padding: $spacing-sm;
+        position: relative;
+        box-shadow: $box-shadow-sm;
+        @include transition(transform);
+        
+        &:hover {
+          transform: translateY(-5px);
+        }
+        
+        .card-value {
+          font-size: 1.25rem;
+          font-weight: bold;
+        }
+        
+        .card-suit {
+          font-size: 2rem;
+        }
+        
+        &.hearts, &.diamonds {
+          color: $hearts-color;
+        }
+        
+        &.clubs, &.spades {
+          color: $clubs-color;
+        }
+      }
+    }
+
+    p {
+      @include flex-center;
+      height: 120px;
+      color: $text-color;
+      font-style: italic;
+      opacity: 0.7;
+      background: linear-gradient(135deg, $background-color 0%, lighten($background-color, 2%) 100%);
+      border-radius: $border-radius-md;
+      border: 2px dashed lighten($border-color, 10%);
+    }
+  }
+
+  .turn-indicator {
+    background: white;
+    border-radius: $border-radius-lg;
+    padding: $spacing-lg;
+    text-align: center;
+    box-shadow: $box-shadow-sm;
+
+    .your-turn {
+      @include heading('sm');
+      color: $success-color;
+      background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.05) 100%);
+      padding: $spacing-md $spacing-lg;
+      border-radius: $border-radius-md;
+      border: 2px solid rgba($success-color, 0.3);
+      font-weight: 600;
+      animation: glow 2s ease-in-out infinite alternate;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '🎯';
+        position: absolute;
+        left: $spacing-md;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2em;
+      }
+    }
+
+    .waiting-turn {
+      color: $text-color;
+      background: linear-gradient(135deg, rgba($text-color, 0.05) 0%, rgba($text-color, 0.02) 100%);
+      padding: $spacing-md $spacing-lg;
+      border-radius: $border-radius-md;
+      border: 2px solid rgba($text-color, 0.1);
+      font-weight: 500;
+      opacity: 0.8;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '⏳';
+        position: absolute;
+        left: $spacing-md;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2em;
       }
     }
   }
-  
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba($success-color, 0.5), 0 0 10px rgba($success-color, 0.3), 0 0 15px rgba($success-color, 0.1);
+  }
+  to {
+    box-shadow: 0 0 10px rgba($success-color, 0.8), 0 0 20px rgba($success-color, 0.5), 0 0 30px rgba($success-color, 0.3);
+  }
+}

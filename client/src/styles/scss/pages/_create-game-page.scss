@@ -1,0 +1,295 @@
+.create-game-page {
+    min-height: 60vh;
+    background: linear-gradient(135deg, $background-color 0%, lighten($background-color, 3%) 100%);
+    @include flex-center;
+    padding: $spacing-md 0;
+  
+    @include respond-to(sm) {
+      padding: $spacing-sm 0;
+    }
+  }
+  
+  .form-section {
+    width: 100%;
+    max-width: 500px;
+    padding: 0 $spacing-md;
+  
+    @include respond-to(sm) {
+      padding: 0 $spacing-lg;
+    }
+  
+    @include respond-to(md) {
+      max-width: 600px;
+    }
+  }
+  
+  .page-title {
+    color: $primary-color;
+    text-align: center;
+    margin-bottom: $spacing-md;
+    position: relative;
+    padding-bottom: $spacing-lg;
+  
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, $secondary-color, $accent-color);
+      border-radius: 2px;
+    }
+  
+    @include respond-to(sm) {
+      font-size: 1.5rem;
+    }
+  
+    @include respond-to(md) {
+      font-size: 2rem;
+    }
+  }
+  
+  .game-form {
+    @include card;
+    max-width: 100%;
+    @include transition(transform, box-shadow);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+  
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, $secondary-color, $accent-color, $secondary-color);
+    }
+  
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: $box-shadow-md;
+      border-color: rgba($secondary-color, 0.2);
+    }
+  
+    @include respond-to(sm) {
+      padding: $spacing-sm;
+    }
+  }
+  
+  .form-field {
+    margin-bottom: $spacing-md;
+    position: relative;
+  
+    &:last-of-type {
+      margin-bottom: $spacing-md;
+    }
+  
+    label {
+      display: block;
+      font-weight: 600;
+      color: $primary-color;
+      margin-bottom: $spacing-sm;
+      font-size: 1rem;
+      position: relative;
+      @include transition(color);
+  
+      &::before {
+        content: '';
+        position: absolute;
+        left: -$spacing-md;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        background-color: $secondary-color;
+        border-radius: 50%;
+      }
+  
+      @include respond-to(sm) {
+        font-size: 1.1rem;
+      }
+    }
+  
+    input, select {
+      width: 100%;
+      padding: $spacing-md $spacing-md;
+      border: 2px solid $border-color;
+      border-radius: $border-radius-md;
+      font-size: 1rem;
+      background-color: white;
+      color: $text-color;
+      font-family: $font-family-base;
+      @include transition(all);
+      position: relative;
+  
+      &:focus {
+        outline: none;
+        border-color: $secondary-color;
+        box-shadow: 0 0 0 4px rgba($secondary-color, 0.1);
+        transform: translateY(-1px);
+      }
+  
+      &:hover:not(:focus) {
+        border-color: lighten($secondary-color, 20%);
+      }
+  
+      &::placeholder {
+        color: lighten($text-color, 40%);
+        font-style: italic;
+      }
+  
+      @include respond-to(sm) {
+        padding: $spacing-sm;
+        font-size: 1.1rem;
+      }
+    }
+  
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right $spacing-md center;
+      background-size: 20px;
+      padding-right: $spacing-xxl;
+      color: $text-color;
+  
+      option {
+        padding: $spacing-sm;
+        background-color: white;
+        color: $text-color;
+      }
+    }
+  
+    // Special styling for specific fields
+    // &#name-field {
+    //   input {
+    //     background: linear-gradient(135deg, rgba($secondary-color, 0.02), rgba($accent-color, 0.02));
+    //   }
+    // }
+  
+    // Validation states
+    &.error {
+      input, select {
+        border-color: $error-color;
+        
+        &:focus {
+          border-color: $error-color;
+          box-shadow: 0 0 0 4px rgba($error-color, 0.1);
+        }
+      }
+  
+      label {
+        color: $error-color;
+      }
+    }
+  
+    &.success {
+      input, select {
+        border-color: $success-color;
+        
+        &:focus {
+          border-color: $success-color;
+          box-shadow: 0 0 0 4px rgba($success-color, 0.1);
+        }
+      }
+    }
+  }
+  
+  // Error message styling
+  .error {
+    color: $error-color;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: $spacing-sm 0 $spacing-lg 0;
+    padding: $spacing-sm $spacing-md;
+    background: rgba($error-color, 0.05);
+    border: 1px solid rgba($error-color, 0.2);
+    border-radius: $border-radius-sm;
+    border-left: 4px solid $error-color;
+    @include flex(row, flex-start, center);
+    gap: $spacing-sm;
+    animation: slideInError 0.3s ease;
+  
+    &::before {
+      content: '⚠️';
+      font-size: 1rem;
+    }
+  }
+  
+  // Form field icons and enhancements
+  .form-field {
+    &:has(input[type="text"]) {
+      label::after {
+        content: '📝';
+        margin-left: $spacing-xs;
+      }
+    }
+  
+    &:has(select[id="maxPlayers"]) {
+      label::after {
+        content: '👥';
+        margin-left: $spacing-xs;
+      }
+    }
+  
+    &:has(select[id="deckCount"]) {
+      label::after {
+        content: '🃏';
+        margin-left: $spacing-xs;
+      }
+    }
+  }
+  
+  // Animations
+  @keyframes slideInError {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes spin {
+    0% { 
+      transform: translateY(-50%) rotate(0deg); 
+    }
+    100% { 
+      transform: translateY(-50%) rotate(360deg); 
+    }
+  }
+  
+  // Responsive enhancements
+  @include respond-to(sm) {
+    .form-field {
+      margin-bottom: $spacing-xl;
+    }
+  }
+  
+  @include respond-to(md) {
+    .game-form {
+      padding: 3rem;
+    }
+    
+    .form-field {
+      @include flex(row, space-between, center);
+      gap: $spacing-xl;
+      
+      label {
+        flex: 0 0 40%;
+        margin-bottom: 0;
+        text-align: right;
+      }
+      
+      input, select {
+        flex: 1;
+      }
+    }
+  }
