@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
                 <h2>Available Game Rooms</h2>
                 {loading ? (<p>Loading game rooms...</p>) : 
                 error ? (<p className="error">{error}</p>) : 
-                gameRooms.length === 0 ? (<p>No game rooms available. Create one to get started!</p>) : (
+                gameRooms.length === 0 ? (<p className="no-game-info">No game rooms available. Create one to get started!</p>) : (
                 <div className="room-list">
                     {gameRooms.map((room) => (
                         <div key={room.id} className="room-card">

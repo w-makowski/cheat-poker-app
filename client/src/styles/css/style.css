@@ -920,6 +920,9 @@ body.hide-navbar .navbar {
   margin-bottom: 1.5rem;
   text-align: center;
 }
+.home-page .game-rooms .no-game-info {
+  text-align: center;
+}
 .home-page .game-rooms .room-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
