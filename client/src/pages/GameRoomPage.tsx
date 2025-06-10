@@ -108,7 +108,6 @@ const GameRoomPage: React.FC = () => {
         });
 
         socket.on('checkResult', (data: CheckResult) => {
-            addHistoryEntry('---');
             addHistoryEntry('New round started');
             setCheckResult(data);
         });
@@ -341,7 +340,7 @@ const GameRoomPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="game-container">
+                <div className={`game-container ${gameState.status === 'active' ? 'sidebar-active' : ''}`}>
                     <div className="sidebar">
                         <PlayerList
                             players={gameState.players}
@@ -358,6 +357,7 @@ const GameRoomPage: React.FC = () => {
                         {gameState.status === 'waiting' && isHost && (
                             <div className="host-controls">
                                 <h3>Host Controls</h3>
+                                <div className="button-group">
                                 <button
                                     className="btn btn-primary"
                                     onClick={handleStartGame}
@@ -367,11 +367,12 @@ const GameRoomPage: React.FC = () => {
                                 </button>
                                 <button
                                     className="btn btn-danger"
-                                    style={{ marginTop: 8 }}
+                                    // style={{ marginTop: 8 }}
                                     onClick={handleCancelRoom}
                                 >
                                     Cancel Room
                                 </button>
+                                </div>
                                 {(!isEveryoneReady || gameState.players.length < 2) && (
                                     <p className="warning">All players must be ready and at least 2 players required.</p>
                                 )}

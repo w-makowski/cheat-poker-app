@@ -1,18 +1,169 @@
+// .game-history {
+//     border: 1px solid #ccc;
+//     border-radius: 8px;
+//     padding: 12px;
+//     margin-top: 16px;
+//     background-color: #f9f9f9;
+//     max-height: 300px;
+//     overflow-y: auto;
+// }
+
+// .game-history-log {
+//     font-family: monospace;
+//     font-size: 14px;
+// }
+
+// .game-history-entry {
+//     margin: 4px 0;
+// }
+
+// GameHistory.scss
+// GameHistory.scss
+
 .game-history {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 16px;
-    background-color: #f9f9f9;
-    max-height: 300px;
+  @include card;
+  background: white;
+  border-radius: $border-radius-lg;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    @include heading('sm');
+    margin: 0 0 $spacing-md 0;
+    padding-bottom: $spacing-sm;
+    border-bottom: 2px solid $background-color;
+    color: $primary-color;
+    position: relative;
+
+    &::after {
+      content: '📜';
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 1.2rem;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: $secondary-color;
+    }
+  }
+
+  .game-history-log {
+    flex: 1;
     overflow-y: auto;
+    padding-right: $spacing-xs;
+    max-height: 250px;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $background-color;
+      border-radius: $border-radius-sm;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: lighten($text-color, 20%);
+      border-radius: $border-radius-sm;
+
+      &:hover {
+        background: $text-color;
+      }
+    }
+
+    .text-muted {
+      @include flex-center;
+      height: 100px;
+      color: $text-color;
+      font-style: italic;
+      opacity: 0.6;
+      background: linear-gradient(135deg, $background-color 0%, lighten($background-color, 2%) 100%);
+      border-radius: $border-radius-md;
+      border: 2px dashed lighten($border-color, 10%);
+      margin: $spacing-md 0;
+    }
+
+    .game-history-entry {
+      padding: $spacing-sm $spacing-md;
+      margin-bottom: $spacing-sm;
+      background: linear-gradient(135deg, $background-color 0%, lighten($background-color, 2%) 100%);
+      border-radius: $border-radius-md;
+      border-left: 3px solid $secondary-color;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: $text-color;
+      @include transition(all);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: $secondary-color;
+        @include transition(width);
+      }
+
+      &:hover {
+        background: white;
+        box-shadow: $box-shadow-sm;
+        transform: translateX(2px);
+
+        &::before {
+          width: 6px;
+        }
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+        background: linear-gradient(135deg, lighten($success-color, 40%) 0%, lighten($success-color, 45%) 100%);
+        border-left-color: $success-color;
+        font-weight: 500;
+
+        &::before {
+          background: $success-color;
+        }
+      }
+
+      // Add icons for different types of actions
+    //   &:first-letter {
+    //     font-weight: 600;
+    //     color: $primary-color;
+    //   }
+    }
+
+    .game-history-entry.highlight-round {
+        background: #fff9d6;
+        border-left-color: darken(#fff9d6, 15%);
+        font-weight: 500;
+        color: darken($text-color, 10%);
+      
+        &::before {
+          background: darken(#fff9d6, 15%);
+        }
+      }
+  }
 }
 
-.game-history-log {
-    font-family: monospace;
-    font-size: 14px;
-}
+// Responsive adjustments
+// @include respond-to(md) {
+//   .game-history {
+//     max-height: 700px;
 
-.game-history-entry {
-    margin: 4px 0;
-}
+//     .game-history-log {
+//       max-height: 150px;
+//     }
+//   }
+// }
