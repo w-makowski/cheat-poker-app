@@ -48,6 +48,31 @@ const GameRoomPage: React.FC = () => {
     const [wasRoomDeleted, setWasRoomDeleted] = useState(false);
     const [historyLog, setHistoryLog] = useState<string[]>([]);
 
+    // --- Ensure leaveGame is emitted on tab close/refresh/navigation ---
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            console.log('[CLIENT] beforeunload: emitting leaveGame');
+            if (socket && connected && gameId) {
+                socket.emit('leaveGame', { gameId });
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [socket, connected, gameId]);
+    // -------------------------------------------------------------------
+    useEffect(() => {
+        return () => {
+            console.log('[CLIENT] unmount: emitting leaveGame');
+            if (socket && connected && gameId) {
+                socket.emit('leaveGame', { gameId });
+            }
+        };
+    }, [socket, connected, gameId]);
+
 
     useEffect(() => {
         const loadGameData = async () => {
@@ -120,11 +145,11 @@ const GameRoomPage: React.FC = () => {
                 const handName = gameData.lastDeclaredHand.declaredHand.hand;
                 const ranks = gameData.lastDeclaredHand.declaredHand.ranks?.join(', ');
                 const suit = gameData.lastDeclaredHand.declaredHand.suit;
-    
+
                 let declaration = `${playerName}: ${handName}`;
                 if (HANDS_REQUIRING_RANK.includes(handName) && ranks) declaration += ` (${ranks})`;
                 if (HANDS_REQUIRING_SUIT.includes(handName) && suit) declaration += ` (${suit})`;
-    
+
                 addHistoryEntry(declaration);
             }
         });
@@ -182,6 +207,7 @@ const GameRoomPage: React.FC = () => {
     };
 
     const handleLeaveGame = () => {
+        console.log('[CLIENT] handleLeaveGame: emitting leaveGame');
         if (socket && connected) {
             socket.emit('leaveGame', { gameId });
         }
@@ -359,20 +385,20 @@ const GameRoomPage: React.FC = () => {
                             <div className="host-controls">
                                 <h3>Host Controls</h3>
                                 <div className="button-group">
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={handleStartGame}
-                                    disabled={!isEveryoneReady || gameState.players.length < 2}
-                                >
-                                    Start Game
-                                </button>
-                                <button
-                                    className="btn btn-danger"
-                                    // style={{ marginTop: 8 }}
-                                    onClick={handleCancelRoom}
-                                >
-                                    Cancel Room
-                                </button>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleStartGame}
+                                        disabled={!isEveryoneReady || gameState.players.length < 2}
+                                    >
+                                        Start Game
+                                    </button>
+                                    <button
+                                        className="btn btn-danger"
+                                        // style={{ marginTop: 8 }}
+                                        onClick={handleCancelRoom}
+                                    >
+                                        Cancel Room
+                                    </button>
                                 </div>
                                 {(!isEveryoneReady || gameState.players.length < 2) && (
                                     <p className="warning">All players must be ready and at least 2 players required.</p>
