@@ -255,22 +255,13 @@ export function setupSocketHandlers(io: Server) {
 
 
     socket.on('leaveGame', async ({ gameId }) => {
-      console.log(`[SERVER] leaveGame received: gameId=${gameId}, socketId=${socket.id}`);
+      console.log(`[SOCKET] leaveGame: gameId=${gameId}, socketId=${socket.id}`);
       try {
         const players = await getPlayersByGameId(gameId);
         const leavingPlayer = players.find(p => playerIdToSocketId.get(p.id) === socket.id);
 
-        console.log('[SERVER] Players in game:', players.map(p => ({ id: p.id, username: p.username })));
-        console.log('[SERVER] Leaving player:', leavingPlayer);
-
-        if (!leavingPlayer) {
-          console.log('[SERVER] No leaving player found for socket:', socket.id);
-          return;
-        }
-        if (leftPlayers.has(leavingPlayer.id)) {
-          console.log('[SERVER] Player already left:', leavingPlayer.id);
-          return;
-        }
+        if (!leavingPlayer) return;
+        if (leftPlayers.has(leavingPlayer.id)) return; // Prevent double leave
         leftPlayers.add(leavingPlayer.id);
 
         // Remove player from game in DB and memory
@@ -280,11 +271,9 @@ export function setupSocketHandlers(io: Server) {
 
         // Fetch updated players
         const updatedPlayers = await getPlayersByGameId(gameId);
-        console.log('[SERVER] Updated players after leave:', updatedPlayers.map(p => p.id));
 
         // If no players left, delete game
         if (updatedPlayers.length === 0) {
-          console.log('[SERVER] No players left, deleting game');
           await deleteGame(gameId);
           activeGames.delete(gameId);
           io.to(gameId).emit('gameDeleted');
@@ -320,7 +309,6 @@ export function setupSocketHandlers(io: Server) {
         }
 
       } catch (err) {
-        console.log('[SERVER] Error in leaveGame:', err);
         socket.emit('gameError', 'Error leaving game');
       }
     });
