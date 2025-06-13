@@ -23,10 +23,9 @@ USER app
 RUN npm install
 
 # Set default backend port (can be overridden at runtime)
-ENV PORT=5001
-
+ENV PORT=5000
 # Expose backend port
-EXPOSE 5001
+EXPOSE 5000
 
 # Start the backend app
-CMD [ "npm", "start" ]
+CMD npx sequelize-cli db:migrate && npm start
